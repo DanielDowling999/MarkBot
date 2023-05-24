@@ -31,3 +31,19 @@ def press_a(n_times=1):
 
 def press_b(n_times=1):
     press_button("z", n_times)
+
+
+def press_l(n_times=1):
+    press_button("a", n_times)
+
+
+def press_r(n_times=1):
+    press_button("s")
+
+
+def press_sel(n_times=1):
+    press_button("backspace")
+
+
+def press_start(n_times=1):
+    press_button("return")

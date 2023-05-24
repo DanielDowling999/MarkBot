@@ -11,6 +11,12 @@ def main():
     controller.press_up(4)
     controller.press_left(2)
     controller.press_right(3)
+    controller.press_l(2)
+    controller.press_r(1)
+    controller.press_a(2)
+    controller.press_b(2)
+    controller.press_start(2)
+    controller.press_sel()
     # press_button("x")
     # press_button("down", 20)
 
