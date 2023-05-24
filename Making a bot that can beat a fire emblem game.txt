@@ -1,0 +1,30 @@
+Game: FE7 (less choices since no split promotion, relatively easy, and allows me to eventually use it on fe6 and fe8)
+
+Process:
+Making a Bot that can do stuff randomly in fire emblem.
+- Controlling the game through code.
+- Pressing random buttons.
+
+Making a Bot that can move a unit in fire emblem.
+- Developing a 'move unit' module
+- Developing an 'attack unit' module
+- Developing a 'heal unit' module
+
+Making a bot that can understand a map in fire emblem.
+- Importing data from the emulator to create a map, and keep track of enemy positions and unit positions.
+
+Making a Bot that can beat a map in fire emblem.
+- Making a bot that can beat the first level (aka a bot that will attack enemies, and heal itself). 
+- Making a bot that can beat a more complex level without caring about who lives and dies (so long as it doesn't
+game over)
+- Making a bot that can beat a level without losing all units.
+
+Making a bot that can beat Lyn Mode in Fire Emblem.
+-Using the units available in each chapter (with myself controlling the inventory and unit deployment), beat lyn mode
+-So it must: Understand the different objective types.
+
+Making a bot that can beat Fire Emblem.
+
+Bonus: Making a bot that can deploy units in Fire Emblem. 
+
+Bonus: Making a bot that can manage inventories in Fire Emblem.
