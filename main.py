@@ -7,16 +7,30 @@ import time
 def main():
     pyautogui.moveTo(7, 80, 0.2)
     pyautogui.click()
-    controller.press_down(5)
-    controller.press_up(4)
-    controller.press_left(2)
-    controller.press_right(3)
-    controller.press_l(2)
-    controller.press_r(1)
-    controller.press_a(2)
-    controller.press_b(2)
-    controller.press_start(2)
-    controller.press_sel()
+    controller.next_unit()
+    # controller.press_left(5)
+    # controller.press_a()
+
+    # needs a buffer for attack animations.
+    # time.sleep(2)
+
+    controller.press_up()
+
+    # attacking requires 3 a presses. One to select the attack option, one to select the weapon, one to select the enemy.
+    controller.press_a(3)
+
+    controller.press_up()
+    controller.press_a()
+    # controller.press_down(5)
+    # controller.press_up(4)
+    # controller.press_left(2)
+    # controller.press_right(3)
+    # controller.press_l(2)
+    # controller.press_r(1)
+    # controller.press_a(2)
+    # controller.press_b(2)
+    # controller.press_start(2)
+    # controller.press_sel()
     # press_button("x")
     # press_button("down", 20)
 
