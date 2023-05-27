@@ -71,3 +71,8 @@ console:log(tostring(unitItem4ID) .. " has " .. tostring(unitItem4Uses) .. " lef
 local unitItem5ID = emu:read8(address+38)
 local unitItem5Uses = emu:read8(address+39)
 console:log(tostring(unitItem5ID) .. " has " .. tostring(unitItem5Uses) .. " left")
+
+local unitData;
+unitData = emu:readRange(address, 40)
+console:log(unitData)
+
