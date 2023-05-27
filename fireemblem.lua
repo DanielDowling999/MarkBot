@@ -5,7 +5,7 @@ console:log(tostring(address))
 local unitNamePointer= emu:read32(address)
 console:log(tostring(unitNamePointer))
 local unitClassPointer = emu:read32(address+4)
-console:log(tostring(unitClassPointer))
+console:log(tostring(unitClassPointer)) --These print the opposite way that they appear in memory (appear as 0-3, print as 3-0)
 
 local unitLevel = emu:read8(address+8)
 console:log(tostring(unitLevel))
@@ -76,3 +76,9 @@ local unitData;
 unitData = emu:readRange(address, 40)
 console:log(unitData)
 
+function getUnitData()
+    local currUnitAddress = 0x03004690
+    local address = emu:read32(currUnitAddress)
+    local unitData = emu:readRange(address,40)
+    return unitData
+end
