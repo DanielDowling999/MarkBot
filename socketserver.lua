@@ -29,7 +29,7 @@ end
 function GetUnitData()
     local currUnitAddress = 0x03004690
     local address = emu:read32(currUnitAddress)
-    local unitData = emu:readRange(address,40)
+    local unitData = emu:readRange(address,49)
     return unitData
 end
 

@@ -16,6 +16,9 @@ unitData = list(data)
 Lyn = Unit(unitData)
 print("The character's id is: " + Lyn.getId() +
       ", and their class ID is " + Lyn.getClassId())
+print("The character's first inventory slot has an item with the id of: " +
+      str(Lyn.inventory[0][0]) + " and has this many uses: " + str(Lyn.inventory[0][1]))
+print("Recieved all neccessary bits? " + str(hex(Lyn.weaponRanks[0])))
 
 # unitID = unitData[0:4]
 # unitClassID = unitData[4:8]
