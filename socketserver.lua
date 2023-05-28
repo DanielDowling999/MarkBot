@@ -33,6 +33,19 @@ function GetUnitData()
     return unitData
 end
 
+function GetEnemyData()
+	local address = 0x0202CEC0
+	local iterator = 1
+	local enemyData =''
+	while(emu:read16(address) > 0x0000) do
+		enemyData = enemyData .. emu:readRange(address, 72)
+		address = address+72
+		iterator = iterator +1
+	end
+	console:log("Found " .. tostring(iterator-1) .. " enemies")
+	return enemyData
+end
+
 function ST_received(id)
 	local sock = ST_sockets[id]
 	if not sock then return end
@@ -41,6 +54,7 @@ function ST_received(id)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 			sock:send(GetUnitData())
+			sock:send(GetEnemyData())
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))
