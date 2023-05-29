@@ -1,3 +1,4 @@
+--Testing file that exists solely for researching the memory. Will likely be deleted entirely by the end of the project
 --local address = 0x0202BD50 Unit in Position 1's address
 local currUnitAddress = 0x03004690
 local address = emu:read32(currUnitAddress)

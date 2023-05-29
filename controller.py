@@ -1,6 +1,8 @@
 import pyautogui
 import time
 
+# Set of useful button press functions, for use if I choose to use pyautogui to let the bot control the game.
+
 
 def press_button(button, n_times=1):
     for num in range(n_times):

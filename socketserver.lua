@@ -26,23 +26,37 @@ function ST_error(id, err)
 	ST_stop(id)
 end
 
-function GetUnitData()
+--If retrieving the current unit is ever desirable outside of using the GetUnitData function
+function GetCurrUnitData()
     local currUnitAddress = 0x03004690
     local address = emu:read32(currUnitAddress)
-    local unitData = emu:readRange(address,49)
+    local unitData = emu:readRange(address,72)
     return unitData
 end
+--Suite of functions to retrieve player and enemy unit data. Will eventually need one for green 'ally' units as well
+function GetMyUnitData()
+	local address = 0x202BD50
+	local myUnitsData = GetUnitData(address)
+	return myUnitsData
+	
+end
 
-function GetEnemyData()
-	local address = 0x0202CEC0
+function GetUnitData(address)
 	local iterator = 1
-	local enemyData =''
-	while(emu:read16(address) > 0x0000) do
-		enemyData = enemyData .. emu:readRange(address, 72)
+	local data = ''
+	--Units take up 72 bytes of data, and as far as I know, if we reach a section of the unitID code with no data, then we have reached the end of the unit list
+	while(emu:read16(address)>0x0000) do
+		data = data .. emu:readRange(address,72)
 		address = address+72
 		iterator = iterator +1
 	end
-	console:log("Found " .. tostring(iterator-1) .. " enemies")
+	console:log("Found " .. tostring(iterator-1) .. " units.")
+	return data
+
+end
+function GetEnemyData()
+	local enemyAddress = 0x0202CEC0
+	local enemyData = GetUnitData(enemyAddress)
 	return enemyData
 end
 
@@ -53,7 +67,7 @@ function ST_received(id)
 		local p, err = sock:receive(1024)
 		if p then
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
-			sock:send(GetUnitData())
+			sock:send(GetMyUnitData())
 			sock:send(GetEnemyData())
 		else
 			if err ~= socket.ERRORS.AGAIN then

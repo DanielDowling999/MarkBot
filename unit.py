@@ -1,4 +1,6 @@
 class Unit:
+    # Notably the unit's con, aid and movement aren't directly accessible from the character's data address. Move and con bonuses are saved here, but will likely need
+    # to hardcode the base move and con based on their class.
     def __init__(self, unitData):
 
         self.id = str(
@@ -38,22 +40,16 @@ class Unit:
         self.weaponRanks = [unitData[40], unitData[41], unitData[42],
                             unitData[43], unitData[44], unitData[45], unitData[46], unitData[47]]
 
-    # def __init__(self, name, isLord, hp, maxhp, xpos, ypos, stats, mov, inv):
-    #    self.name = name
-    #    self.isLord = isLord
-    #    self.hp = hp
-    #    self.maxhp = maxhp
-    #    self.xpos = xpos
-    #    self.ypos = ypos
-    #    self.stats = stats
-    #    self.mov = mov
-    #    self.inv = inv
+# Helper functions that only exist if I ever want/need to make things prettier, or ever have a reason to need the unit's name or class name.
+# These lists will have to be added to manually, fortunately lists exist online already
+    def getUnitName(self):
+        unitNameDictionary = {"0xb4cebd08": "Lyn",
+                              "0xf8d2bd08": "Sain",
+                              "0xc4d2bd08": "Kent"}
+        return unitNameDictionary.get(self.id, "Enemy")
 
-    def getId(self):
-        return self.id
-
-    def getClassId(self):
-        return self.classId
-
-    def getLevel(self):
-        return self.level
+    def getClassName(self):
+        unitClassNameDictionary = {"0x402be08": "Lord (Lyn)",
+                                   "0x7c0ebe08": "Cavalier",
+                                   "0x101be08": "Brigand"}
+        return unitClassNameDictionary.get(self.classId, "Unknown Class")
