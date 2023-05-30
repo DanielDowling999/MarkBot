@@ -1,0 +1,16 @@
+Id, Name, Staff Rank, Heal Might, Weight, Hit, Range
+4A, Heal, E, 10, 2, 100, 1
+4B, Mend, D, 20, 4, 100, 1
+4C, Recover, C, 80, 6, 100, 1 
+4D, Physic, B, 10, 5, 100, 1-Mag/2
+4E, Fortify, A, 10, 7, 100, 1-Mag/2
+4F, Restore, C, Status, 4, 100, 1
+50, Silence, B, Silence, 7, 70, 1-Mag/2
+51, Sleep, B, Sleep, 8, 65, 1-Mag/2
+52, Berserk, B, Berserk, 8, 60, 1-Mag/2
+53, Warp, A, MoveAlly, 5, 100, 1
+54, Rescue, B, MoveAllyHere, 6, 100, 1-Mag/2
+55, Torch, D, Torch, 5, 100, 1-Mag/2
+56, Hammerne, C, FixWeapon, 7, 100, 1-Mag/2
+57, Unlock, D, UnlockDoor, 7, 100, 1-Mag/2
+58, Barrier, C, BuffRes, 4, 100, 1

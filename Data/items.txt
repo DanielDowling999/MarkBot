@@ -1,0 +1,43 @@
+00, Nothing
+5A, Angelic robe
+5B, Energy ring
+5C, Secret book
+5D, Speedwings
+5E, Goddess icon
+5F, Dragonshield
+60, Talisman
+61, Boots
+62, Body ring
+63, Hero crest
+64, Knight crest
+65, Orion's bolt
+66, Elysian whip
+67, Guiding ring
+68, Chest key
+69, Door key
+6A, Lockpick
+6B, Vulnerary
+6C, Elixir
+6D, Pure water
+6E, Antitoxin
+6F, Torch
+70, Delphi Shield
+71, Member Card
+72, Silver Card
+73, White gem
+74, Blue gem
+75, Red gem
+78, Chest key
+79, Mine
+7A, Light rune
+7B, Iron rune
+7C, Filla's Might
+7D, Ninis's Grace
+7E, Thor's Ire
+7F, Set's Litany
+87, Earth seal
+88, Afa's Drops
+89, Heaven seal
+8A, Emblem seal
+8B, Fell contract
+96, Ocean seal
