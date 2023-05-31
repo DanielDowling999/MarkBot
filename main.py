@@ -9,6 +9,7 @@ physWeaponList = []
 magWeaponList = []
 staffList = []
 classList = []
+commandList = ["getUnits", "getEnemies", "getMoney", "getMap"]
 
 
 def openItemFile(filename):
@@ -68,10 +69,35 @@ def decideMove(currUnit, unitList, enemyList):
 
 # Alternative to going unit by unit - Calculate the absolute best move out of all units, execute it (swapping to the right unit using L+A),
 # then repeating with the remaining units until all moves are done.
-# Note: This might be slow. Will do the naive approach (Just go unit-by-unit, find their best move, then go to the next one)
+# Note: This might be slow. Will do the naive approach first (Just go unit-by-unit, find their best move, then go to the next one)
+
+
+def storeUnits(unitData):
+    numUnits = int(len(unitData)/72)
+    unitList = []
+    startAddress = 0
+    endAddress = 72
+    for x in range(numUnits):
+        unitList.append(Unit(unitData[startAddress:endAddress]))
+        startAddress = endAddress
+        endAddress += 72
+    return unitList
+
+
+def getUnitData(data):
+    unitData = list(data)
+    unitList = storeUnits(unitData)
+    return unitList
+
+
+def getEnemyData(data):
+    enemyData = list(data)
+    enemyList = storeUnits(enemyData)
+    return enemyList
 
 
 def main():
+    global commandList
     fillItemLists()
     # print("Items: " + str(itemList))
     # print("Physical Weapons: " + str(physWeaponList))
@@ -80,8 +106,20 @@ def main():
 
     # pyautogui.moveTo(7, 80, 0.2)
     # pyautogui.click()
-    unitList, enemyList = sockettest.main()
+    # , enemyList = sockettest.main()
+    unitData = sockettest.main(commandList[0])
+    enemyData = sockettest.main(commandList[1])
+    money = int(sockettest.main(commandList[2]))
+    unitList = storeUnits(unitData)
+    enemyList = storeUnits(enemyData)
     moveList = []
+    for units in unitList:
+        units.printUnitInformation()
+    for enemies in enemyList:
+        enemies.printUnitInformation()
+    print(money)
+    # print(unitList)
+    # print(enemyList)
     # print(money)
     """for currUnit in unitList:
         moveList.append(decideMove())

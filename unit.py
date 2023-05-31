@@ -11,21 +11,18 @@ def openClassFile(filename):
 class Unit:
     # Notably the unit's con, aid and movement aren't directly accessible from the character's data address. Move and con bonuses are saved here, but will likely need
     # to hardcode the base move and con based on their class.
-    unitNameDictionary = {"0xb4cebd08": "Lyn",
-                          "0xf8d2bd08": "Sain",
-                          "0xc4d2bd08": "Kent"}
-    unitClassNameDictionary = {"0x402be08": "Lord (Lyn)",
-                               "0x7c0ebe08": "Cavalier",
-                               "0x101be08": "Brigand"}
+
     physWeaponList = [["01", "Iron Sword", ""]]
     magWeaponList = []
     otherList = []
     classList = openClassFile("Data/class.txt")
+    nameList = openClassFile("Data/units.txt")
 
     def __init__(self, unitData):
 
         self.id = str(
             hex(unitData[0])) + f'{unitData[1]:{0}2x}' + f'{unitData[2]:{0}2x}' + f'{unitData[3]:{0}2x}'  # f formats the string {0} ensures no leading 0's are deleted
+        self.nameId = f'{unitData[1]:{0}2x}' + f'{unitData[0]:{0}2x}'
         # f formats the string {0} ensures no leading 0's are deleted
         # self.classId = str(hex(
         #    unitData[4])) + f'{unitData[5]:{0}2x}' + f'{unitData[6]:{0}2x}' + f'{unitData[7]:{0}2x}'
@@ -68,6 +65,7 @@ class Unit:
         self.classMoveType = classData[3]
         self.trueMove = int(self.classMove) + int(self.movBonus)
         self.trueCon = int(self.classCon) + int(self.conBonus)
+        self.name = Unit.nameList.get(self.nameId, "E")[0]
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
         # self.classCon = self.getClassCon()
@@ -77,9 +75,6 @@ class Unit:
 
 # Helper functions that only exist if I ever want/need to make things prettier, or ever have a reason to need the unit's name or class name.
 # These lists will have to be added to manually, fortunately lists exist online already
-
-    def getUnitName(self):
-        return Unit.unitNameDictionary.get(self.id, "Enemy")
 
     # def getClassName(self):
     #    return Unit.classList.get(self.classId)[0]
@@ -126,3 +121,7 @@ class Unit:
         # order is Sword, Lance, Axe, Bow, Staff, Anima, Light, Dark
         self.weaponRanks = [unitData[40], unitData[41], unitData[42],
                             unitData[43], unitData[44], unitData[45], unitData[46], unitData[47]]
+
+    def printUnitInformation(self):
+        print("Unit Name: " + self.name + "\nUnit Class: " + self.className + "\nUnit Level: " +
+              str(self.level) + "\nI am at x: " + str(self.xpos) + " and y: " + str(self.ypos))

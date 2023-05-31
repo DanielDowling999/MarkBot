@@ -14,27 +14,29 @@ def storeUnits(unitData):
     return unitList
 
 
-def main():
+def main(command='sendHello'):
+    data = ''
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(('localhost', 8888))
         print('Connected to server')
 
-        command = 'console:log("Hello")'
+        # command = 'console:log("Hello")'
         s.sendall(command.encode())
         print('Sent command to mgba api: ', command)
 
         data = s.recv(1024)
-        print('Recieved response from api: ', data)
-        enemyData = s.recv(1024)
-        print('Recieved enemy from api', enemyData)
-        # money = s.recv(1024)
+        print('Recieved data from server ')
+        # enemyData = s.recv(1024)
+        # print('Recieved enemy from api')
+        # money = s.recv(16)
         # print('Recieved money from api', money)
 
-    unitData = list(data)
-    unitList = storeUnits(unitData)
-    eneData = list(enemyData)
-    enemyList = storeUnits(eneData)
-    return unitList, enemyList  # , money
+    return data
+    # unitData = list(data)
+    # unitList = storeUnits(unitData)
+    # eneData = list(enemyData)
+    # enemyList = storeUnits(eneData)
+    # return unitList, enemyList  # , money
 
 # Lyn = Unit(unitData)
 # print("The character's id is: " + Lyn.getId() +

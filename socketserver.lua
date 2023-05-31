@@ -67,14 +67,25 @@ end
 
 function ST_received(id)
 	local sock = ST_sockets[id]
+	local data = "invalid command"
 	if not sock then return end
 	while true do
 		local p, err = sock:receive(1024)
+		--console:log(p)
 		if p then
+			msg = p:match("^(.-)%s*$")
+			if msg == "getUnits" then
+				data = GetMyUnitData()
+				console:log("Successfully Collected Units")
+			elseif msg == "getEnemies" then
+				data = GetEnemyData()
+				console:log("Successfully Collected Enemies")
+			elseif p == "getMoney" then
+				data = GetMoney()
+				console:log("Successfully retrieved Money")
+			end
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
-			sock:send(GetMyUnitData())
-			sock:send(GetEnemyData())
-		    --sock:send(GetMoney())
+			sock:send(data)
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))
@@ -117,6 +128,7 @@ function ST_accept()
 	sock:add("error", function() ST_error(id) end)
 	console:log(ST_format(id, "Connected"))
 end
+
 
 
 callbacks:add("keysRead", ST_scankeys)
