@@ -26,6 +26,7 @@ def main(command='sendHello'):
 
         data = s.recv(1024)
         print('Recieved data from server ')
+        s.close()
         # enemyData = s.recv(1024)
         # print('Recieved enemy from api')
         # money = s.recv(16)
