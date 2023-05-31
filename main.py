@@ -9,7 +9,8 @@ physWeaponList = []
 magWeaponList = []
 staffList = []
 classList = []
-commandList = ["getUnits", "getEnemies", "getMoney", "getMap"]
+commandList = ["getUnits", "getEnemies",
+               "getMoney", "getMap", "getIsPlayerPhase"]
 
 
 def openItemFile(filename):
@@ -110,14 +111,21 @@ def main():
     unitData = sockettest.main(commandList[0])
     enemyData = sockettest.main(commandList[1])
     money = int(sockettest.main(commandList[2]))
+    isPlayerPhase = sockettest.main(commandList[4]).decode('utf-8')
+
+    # print(isPlayerPhase)
+    # if isPlayerPhase == 'T':
+    #    print("It's your turn")
+    # else:
+    #    print("Not your turn")
     unitList = storeUnits(unitData)
     enemyList = storeUnits(enemyData)
-    moveList = []
-    for units in unitList:
-        units.printUnitInformation()
-    for enemies in enemyList:
-        enemies.printUnitInformation()
-    print(money)
+    # moveList = []
+    # for units in unitList:
+    #    units.printUnitInformation()
+    # for enemies in enemyList:
+    #    enemies.printUnitInformation()
+    # print(money)
     # print(unitList)
     # print(enemyList)
     # print(money)

@@ -65,22 +65,33 @@ function GetMoney()
 	return money
 end
 
+function GetPlayerPhase()
+	if emu:read8(0x0202BBF8+15) == 0x0 then
+		return 'T'
+	end
+	return 'F'
+end
+
 function ST_received(id)
 	local sock = ST_sockets[id]
 	local data = "invalid command"
+	local msg
 	if not sock then return end
 	while true do
 		local p, err = sock:receive(1024)
 		--console:log(p)
 		if p then
 			msg = p:match("^(.-)%s*$")
-			if msg == "getUnits" then
+			if msg == "getIsPlayerPhase" then
+				data = GetPlayerPhase()
+				console:log("Successfully retrieved player phase")
+			elseif msg == "getUnits" then
 				data = GetMyUnitData()
 				console:log("Successfully Collected Units")
 			elseif msg == "getEnemies" then
 				data = GetEnemyData()
 				console:log("Successfully Collected Enemies")
-			elseif p == "getMoney" then
+			elseif msg == "getMoney" then
 				data = GetMoney()
 				console:log("Successfully retrieved Money")
 			end
