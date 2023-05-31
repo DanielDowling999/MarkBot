@@ -1,43 +1,43 @@
-00, Nothing
-5A, Angelic robe
-5B, Energy ring
-5C, Secret book
-5D, Speedwings
-5E, Goddess icon
-5F, Dragonshield
-60, Talisman
-61, Boots
-62, Body ring
-63, Hero crest
-64, Knight crest
-65, Orion's bolt
-66, Elysian whip
-67, Guiding ring
-68, Chest key
-69, Door key
-6A, Lockpick
-6B, Vulnerary
-6C, Elixir
-6D, Pure water
-6E, Antitoxin
-6F, Torch
-70, Delphi Shield
-71, Member Card
-72, Silver Card
-73, White gem
-74, Blue gem
-75, Red gem
-78, Chest key
-79, Mine
-7A, Light rune
-7B, Iron rune
-7C, Filla's Might
-7D, Ninis's Grace
-7E, Thor's Ire
-7F, Set's Litany
-87, Earth seal
-88, Afa's Drops
-89, Heaven seal
-8A, Emblem seal
-8B, Fell contract
-96, Ocean seal
+0x00, Nothing
+0x5A, Angelic robe
+0x5B, Energy ring
+0x5C, Secret book
+0x5D, Speedwings
+0x5E, Goddess icon
+0x5F, Dragonshield
+0x60, Talisman
+0x61, Boots
+0x62, Body ring
+0x63, Hero crest
+0x64, Knight crest
+0x65, Orion's bolt
+0x66, Elysian whip
+0x67, Guiding ring
+0x68, Chest key
+0x69, Door key
+0x6A, Lockpick
+0x6B, Vulnerary
+0x6C, Elixir
+0x6D, Pure water
+0x6E, Antitoxin
+0x6F, Torch
+0x70, Delphi Shield
+0x71, Member Card
+0x72, Silver Card
+0x73, White gem
+0x74, Blue gem
+0x75, Red gem
+0x78, Chest key
+0x79, Mine
+0x7A, Light rune
+0x7B, Iron rune
+0x7C, Filla's Might
+0x7D, Ninis's Grace
+0x7E, Thor's Ire
+0x7F, Set's Litany
+0x87, Earth seal
+0x88, Afa's Drops
+0x89, Heaven seal
+0x8A, Emblem seal
+0x8B, Fell contract
+0x96, Ocean seal

@@ -1,25 +1,25 @@
 Id, Name, Weapon Type, Weapon Level, Might, Weight, Hit, Crit, Range
-11, Runesword, Sword, A, 12, 11, 65, 0, 1-2
-37, Fire, Anima, E, 5, 4, 90, 0, 1-2
-38, Thunder, Anima, D, 8, 6, 80, 5, 1-2
-39, Elfire, Anima, C, 10, 10, 85, 0, 1-2
-3A, Bolting, Anima, B, 12, 20, 60, 0, 3-10
-3B, Fimbulvetr, Anima, A, 13, 12, 80, 0, 1-2 
-3C, Forblaze, Anima, PrfAth, 14, 11, 85, 5, 1-2
-3D, Excalibur, Anima, S, 18, 13, 90, 10, 1-2
-3E, Lightning, Light, E, 4, 6, 95, 5, 1-2
-3F, Shine, Light, D, 6, 8, 90, 8, 1-2
-40, Divine, Light, C, 8, 12, 85, 8, 1-2
-41, Purge, Light, B, 10, 20, 75, 5, 3-10
-42, Aura, Light, A, 12, 15, 85, 15, 1-2
-10, Light Brand, Sword, C, 9, 9, 70, 0, 1-2
-43, Luce, Light, S, 16, 16, 95, 25, 1-2
-44, Flux, Dark, D, 7, 8, 80, 0, 1-2
-45, Luna, Dark, C, 0, 12, 95, 20, 1-2
-46, Nosferatu, Dark, C, 10, 14, 70, 0, 1-2
-47, Eclipse, Dark, B, N/A, 12, 30, 0, 3-10
-48, Fenrir, Dark, A, 15, 18, 70, 0, 1-2
-49, Gespenst, Dark, S, 23, 20, 80, 0, 1-2
-86, Aureola, Light, S, 15, 14, 90, 5, 1-2
-8E, Ereshkigal, Dark, PrfN, 20, 12, 95, 0, 1-2
-99, Wind Sword, Sword, B, 9, 9, 70, 0, 1-2
+0x11, Runesword, Sword, A, 12, 11, 65, 0, 1-2
+0x37, Fire, Anima, E, 5, 4, 90, 0, 1-2
+0x38, Thunder, Anima, D, 8, 6, 80, 5, 1-2
+0x39, Elfire, Anima, C, 10, 10, 85, 0, 1-2
+0x3A, Bolting, Anima, B, 12, 20, 60, 0, 3-10
+0x3B, Fimbulvetr, Anima, A, 13, 12, 80, 0, 1-2 
+0x3C, Forblaze, Anima, PrfAth, 14, 11, 85, 5, 1-2
+0x3D, Excalibur, Anima, S, 18, 13, 90, 10, 1-2
+0x3E, Lightning, Light, E, 4, 6, 95, 5, 1-2
+0x3F, Shine, Light, D, 6, 8, 90, 8, 1-2
+0x40, Divine, Light, C, 8, 12, 85, 8, 1-2
+0x41, Purge, Light, B, 10, 20, 75, 5, 3-10
+0x42, Aura, Light, A, 12, 15, 85, 15, 1-2
+0x10, Light Brand, Sword, C, 9, 9, 70, 0, 1-2
+0x43, Luce, Light, S, 16, 16, 95, 25, 1-2
+0x44, Flux, Dark, D, 7, 8, 80, 0, 1-2
+0x45, Luna, Dark, C, 0, 12, 95, 20, 1-2
+0x46, Nosferatu, Dark, C, 10, 14, 70, 0, 1-2
+0x47, Eclipse, Dark, B, N/A, 12, 30, 0, 3-10
+0x48, Fenrir, Dark, A, 15, 18, 70, 0, 1-2
+0x49, Gespenst, Dark, S, 23, 20, 80, 0, 1-2
+0x86, Aureola, Light, S, 15, 14, 90, 5, 1-2
+0x8E, Ereshkigal, Dark, PrfN, 20, 12, 95, 0, 1-2
+0x99, Wind Sword, Sword, B, 9, 9, 70, 0, 1-2

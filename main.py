@@ -8,6 +8,7 @@ itemList = []
 physWeaponList = []
 magWeaponList = []
 staffList = []
+classList = []
 
 
 def openItemFile(filename):
@@ -21,10 +22,12 @@ def fillItemLists():
     global physWeaponList
     global magWeaponList
     global staffList
+    global classList
     itemList = openItemFile("Data/items.txt")
     physWeaponList = openItemFile("Data/physWeapons.txt")
     magWeaponList = openItemFile("Data/magWeapons.txt")
     staffList = openItemFile("Data/staves.txt")
+    classList = openItemFile("Data/class.txt")
 
 
 def moveTo(startX, startY, endX, endY):
@@ -52,6 +55,22 @@ def enemyInRange(currUnit, enemyList):
     return enemiesInRange
 
 
+def decideMove(currUnit, unitList, enemyList):
+    # unit list is passed for units that can heal, and potentially for trading possibilities, finding 'safe' moves, dancing, and the like
+    unitX = currUnit.xpos
+    unitY = currUnit.ypos
+    enemiesInRange = enemyInRange(currUnit, enemyList)
+    if not enemiesInRange:
+        moveX = 0
+        moveY = 0
+
+    return moveX, moveY
+
+# Alternative to going unit by unit - Calculate the absolute best move out of all units, execute it (swapping to the right unit using L+A),
+# then repeating with the remaining units until all moves are done.
+# Note: This might be slow. Will do the naive approach (Just go unit-by-unit, find their best move, then go to the next one)
+
+
 def main():
     fillItemLists()
     # print("Items: " + str(itemList))
@@ -59,9 +78,12 @@ def main():
     # print("Magic Weapons: " + str(magWeaponList))
     # print("Staves: " + str(staffList))
 
-    pyautogui.moveTo(7, 80, 0.2)
-    pyautogui.click()
+    # pyautogui.moveTo(7, 80, 0.2)
+    # pyautogui.click()
     unitList, enemyList = sockettest.main()
+    moveList = []
+    """for currUnit in unitList:
+        moveList.append(decideMove())
     controller.next_unit()
     unitX = unitList[0].xpos
     unitY = unitList[0].ypos
@@ -75,7 +97,18 @@ def main():
         moveTo(unitX, unitY,
                enemiesInRange[0].xpos+1, enemiesInRange[0].ypos)
         time.sleep(1)
-        controller.attack()
+        controller.attack()"""
+    for units in unitList:
+        
+        #Test for making sure the class data is generated correctly
+        #unitId = units.id
+        #print("This unit is: " + unitId)
+        #print(unitId + " is in the class corresponding to: " + units.classId)
+        #print(units.classId + " is the " + units.className + " class")
+        #print(units.className + " has " + units.classCon + " con, " +
+        #      units.classMove + " move, " + units.classMoveType + " move type")
+        #print("So " + unitId + " has " + str(units.trueMove) +
+        #      " move and " + str(units.trueCon) + " constitution")
 
     # lyn moved to 0c 05
     # needs a buffer for attack animations.
