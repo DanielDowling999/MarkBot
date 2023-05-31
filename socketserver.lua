@@ -38,7 +38,6 @@ function GetMyUnitData()
 	local address = 0x202BD50
 	local myUnitsData = GetUnitData(address)
 	return myUnitsData
-	
 end
 
 function GetUnitData(address)
@@ -60,6 +59,12 @@ function GetEnemyData()
 	return enemyData
 end
 
+function GetMoney()
+	local money = emu:read16(0x0202BC00)
+	console:log("Found Money")
+	return money
+end
+
 function ST_received(id)
 	local sock = ST_sockets[id]
 	if not sock then return end
@@ -69,6 +74,7 @@ function ST_received(id)
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 			sock:send(GetMyUnitData())
 			sock:send(GetEnemyData())
+		    --sock:send(GetMoney())
 		else
 			if err ~= socket.ERRORS.AGAIN then
 				console:error(ST_format(id, err, true))

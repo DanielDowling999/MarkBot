@@ -26,13 +26,15 @@ def main():
         data = s.recv(1024)
         print('Recieved response from api: ', data)
         enemyData = s.recv(1024)
-        print('Recieved enemy from api')
+        print('Recieved enemy from api', enemyData)
+        # money = s.recv(1024)
+        # print('Recieved money from api', money)
 
     unitData = list(data)
     unitList = storeUnits(unitData)
     eneData = list(enemyData)
     enemyList = storeUnits(eneData)
-    return unitList, enemyList
+    return unitList, enemyList  # , money
 
 # Lyn = Unit(unitData)
 # print("The character's id is: " + Lyn.getId() +

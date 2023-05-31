@@ -49,7 +49,7 @@ def enemyInRange(currUnit, enemyList):
     unitX = currUnit.xpos
     unitY = currUnit.ypos
     for enemy in enemyList:
-        if (abs(unitX - enemy.xpos) + abs(unitY-enemy.ypos) < 5):
+        if (abs(unitX - enemy.xpos) + abs(unitY-enemy.ypos) < currUnit.trueMove):
             enemiesInRange.append(enemy)
 
     return enemiesInRange
@@ -82,6 +82,7 @@ def main():
     # pyautogui.click()
     unitList, enemyList = sockettest.main()
     moveList = []
+    # print(money)
     """for currUnit in unitList:
         moveList.append(decideMove())
     controller.next_unit()
@@ -98,17 +99,17 @@ def main():
                enemiesInRange[0].xpos+1, enemiesInRange[0].ypos)
         time.sleep(1)
         controller.attack()"""
-    for units in unitList:
-        
-        #Test for making sure the class data is generated correctly
-        #unitId = units.id
-        #print("This unit is: " + unitId)
-        #print(unitId + " is in the class corresponding to: " + units.classId)
-        #print(units.classId + " is the " + units.className + " class")
-        #print(units.className + " has " + units.classCon + " con, " +
-        #      units.classMove + " move, " + units.classMoveType + " move type")
-        #print("So " + unitId + " has " + str(units.trueMove) +
-        #      " move and " + str(units.trueCon) + " constitution")
+    # for units in unitList:
+
+    # Test for making sure the class data is generated correctly
+    # unitId = units.id
+    # print("This unit is: " + unitId)
+    # print(unitId + " is in the class corresponding to: " + units.classId)
+    # print(units.classId + " is the " + units.className + " class")
+    # print(units.className + " has " + units.classCon + " con, " +
+    #      units.classMove + " move, " + units.classMoveType + " move type")
+    # print("So " + unitId + " has " + str(units.trueMove) +
+    #      " move and " + str(units.trueCon) + " constitution")
 
     # lyn moved to 0c 05
     # needs a buffer for attack animations.
