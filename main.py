@@ -10,7 +10,7 @@ magWeaponList = []
 staffList = []
 classList = []
 commandList = ["getUnits", "getEnemies",
-               "getMoney", "getMap", "getIsPlayerPhase"]
+               "getMoney", "getMapSize", "getMap", "getIsPlayerPhase"]
 
 
 def openItemFile(filename):
@@ -44,6 +44,7 @@ def moveTo(startX, startY, endX, endY):
     elif (moveY > 0):
         controller.press_down(moveY)
     controller.press_a()
+    time.sleep(1)
 
 
 def enemyInRange(currUnit, enemyList):
@@ -65,12 +66,34 @@ def decideMove(currUnit, unitList, enemyList):
     if not enemiesInRange:
         moveX = 0
         moveY = 0
+    # moveAction - "nothing", "attack", "useItem(itemPos)", "heal(unit)", "dance(unit)"
+    moveAction = "attack"
+    return moveX, moveY, moveAction
 
-    return moveX, moveY
+
+def findNearestEnemy(currUnit, enemyList):
+    unitX = currUnit.xpos
+    unitY = currUnit.ypos
 
 # Alternative to going unit by unit - Calculate the absolute best move out of all units, execute it (swapping to the right unit using L+A),
 # then repeating with the remaining units until all moves are done.
 # Note: This might be slow. Will do the naive approach first (Just go unit-by-unit, find their best move, then go to the next one)
+
+# Does not care about map information at all. Only goal is to move units to nearest enemies and kill them, and heal if hp < half maxHp
+
+# Need to figure out map stuff before I can actually use this
+
+
+def basicMoveAlgorithm(currUnit, unitList, enemyList):
+    unitX = currUnit.xpos
+    unitY = currUnit.ypos
+    itemPos = currUnit.getHealingItem()
+    enemy = findNearestEnemy(currUnit, enemyList)
+    if abs(unitX - enemy.xpos) + abs(unitY-enemy.ypos) < currUnit.trueMove:
+        moveX = unitX
+
+    if currUnit.currHP < (currUnit.maxHP/2) and itemPos < 5:
+        moveAction = "useItem"
 
 
 def storeUnits(unitData):
@@ -107,19 +130,43 @@ def main():
 
     # pyautogui.moveTo(7, 80, 0.2)
     # pyautogui.click()
-    # , enemyList = sockettest.main()
-    unitData = sockettest.main(commandList[0])
-    enemyData = sockettest.main(commandList[1])
-    money = int(sockettest.main(commandList[2]))
-    isPlayerPhase = sockettest.main(commandList[4]).decode('utf-8')
 
+    # mapsize = list(sockettest.main(commandList[3]))
+
+    # if a map has a width of 10, then the tiles go from 0-9
+    # mapxlength = mapsize[1] + mapsize[0]
+    # mapylength = mapsize[3] + mapsize[2]
+
+    # print(mapxlength)
+    # print(mapylength)
+
+    # unitData = sockettest.main(commandList[0])
+    # enemyData = sockettest.main(commandList[1])
+    # money = int(sockettest.main(commandList[2]))
+    mapData = sockettest.main(commandList[4])
+    print(mapData)
+    # mapList = list(mapData)
+    # print(mapList[20])
+    # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
+    # map stuff seems hard ;-;
+    # might be better to store map in memory? Rather than pull it every turn?
+    # print(mapsize)
     # print(isPlayerPhase)
     # if isPlayerPhase == 'T':
     #    print("It's your turn")
     # else:
     #    print("Not your turn")
-    unitList = storeUnits(unitData)
-    enemyList = storeUnits(enemyData)
+    # unitList = storeUnits(unitData)
+    # enemyList = storeUnits(enemyData)
+
+    # need to figure out map stuff before I can create main loop
+    """while isPlayerPhase == 'T':
+        for units in unitList:
+            if not units.hasMoved:
+                moveX, moveY, moveAction = decideMove(
+                    units, unitList, enemyList)
+                moveTo(units.xpos, units.ypos, moveX, moveY)
+"""
     # moveList = []
     # for units in unitList:
     #    units.printUnitInformation()

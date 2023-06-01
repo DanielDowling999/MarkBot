@@ -17,6 +17,7 @@ class Unit:
     otherList = []
     classList = openClassFile("Data/class.txt")
     nameList = openClassFile("Data/units.txt")
+    # itemList = openClassFile("Data/items.txt")
 
     def __init__(self, unitData):
 
@@ -88,6 +89,7 @@ class Unit:
     # def getClassMoveType(self):
     #    return Unit.classList.get(self.classId)[3]
 
+
     def updateUnit(self, unitData):
         self.classId = str(hex(
             unitData[4])) + f'{unitData[5]:{0}2x}' + f'{unitData[6]:{0}2x}' + f'{unitData[7]:{0}2x}'
@@ -109,6 +111,7 @@ class Unit:
         self.isRescued = unitData[27]
         # 28 seems to be useless, and 29 is assumed to be the movebonus until I can test properly
         self.movBonus = unitData[29]
+
         self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
             unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
         # 00 - weapon disabled
@@ -125,3 +128,11 @@ class Unit:
     def printUnitInformation(self):
         print("Unit Name: " + self.name + "\nUnit Class: " + self.className + "\nUnit Level: " +
               str(self.level) + "\nI am at x: " + str(self.xpos) + " and y: " + str(self.ypos))
+
+    def getHealingItems(self):
+        itemPos = 0
+        for items in self.inventory:
+            if (items[0] == 0x6B):
+                return itemPos
+            iterator += 1
+        return itemPos

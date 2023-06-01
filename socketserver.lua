@@ -72,6 +72,26 @@ function GetPlayerPhase()
 	return 'F'
 end
 
+function GetMapData()
+	--Get tile range
+	local mapDataSize = (emu:read8(0x0202E3D8)+2)*emu:read8(0x0202E3DA)
+	local fe7TerrainAddress = 0x0202E3E0
+	local address = emu:read32(fe7TerrainAddress)
+	--0202EBB8
+	local mapAddress = emu:read32(address)
+	--0202EC0A
+	local terrainData = emu:readRange(mapAddress, mapDataSize)
+	return terrainData
+end
+
+function GetMapSize()
+	local mapsize = emu:readRange(0x0202E3D8,4)
+	--local mapy = emu:read16(0x202E3)
+	--console:log(mapsize)
+	return mapsize
+end
+	
+
 function ST_received(id)
 	local sock = ST_sockets[id]
 	local data = "invalid command"
@@ -94,6 +114,12 @@ function ST_received(id)
 			elseif msg == "getMoney" then
 				data = GetMoney()
 				console:log("Successfully retrieved Money")
+			elseif msg == "getMapSize" then
+				data = GetMapSize()
+				console:log("Successfully retrieved Map Size")
+			elseif msg == "getMap" then
+				data = GetMapData()
+				console:log("Sucessfully retrieved Map Data")
 			end
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 			sock:send(data)
