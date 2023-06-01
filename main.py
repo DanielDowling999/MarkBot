@@ -144,8 +144,8 @@ def main():
     # enemyData = sockettest.main(commandList[1])
     # money = int(sockettest.main(commandList[2]))
     mapData = sockettest.main(commandList[4])
-    print(mapData)
-    # mapList = list(mapData)
+    mapList = list(mapData)
+    print(mapList)
     # print(mapList[20])
     # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
     # map stuff seems hard ;-;
