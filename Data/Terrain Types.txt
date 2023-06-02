@@ -1,0 +1,50 @@
+Terrain Group Name - Terrain Group ID - Terrain Name - Terrain ID
+Plains 		   - 01 	      - Plains 	     - 01
+	    			      - Road   	     - 02
+				      - Floor	     - 17
+				      - Stairs       -
+				      - Deck	     -
+				      - Bridge       - 13
+
+Forest		   - 0C		      - Forest       - 0C
+
+Mountain           - 11               - Mountain     - 11
+
+Peak               - 12               - Peak         - 12
+
+Settlement         - 05               - House        - 05
+				      - Shop         - 06
+                                      - Arena        -
+                                      - Village	     - 03
+                                      - Ruins        - 
+
+Fort               - 0A               - Fort         - 0A
+
+Gate               - 23               - Gate         - 23
+
+River              - 10               - River        - 10
+
+Lake               - 16               - Lake         - 16
+
+Sea                -                  - Sea          - 
+
+Sand
+
+Desert
+
+Pillar
+
+Throne             - 1F               - Throne       - 1F
+
+Obstacle           - 19               - Fence        - 19  
+				      - Roof	     - 2E
+					  - Cliff        - 26
+
+Wall/Door          - 04		      - Closed Vllg  - 04
+				      - Wall         - 1A
+					  - Brace        - 3F
+					  - Door         - 1E
+
+
+    
+                                      

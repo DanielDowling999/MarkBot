@@ -3,6 +3,7 @@ import controller
 import time
 import sockettest
 from unit import Unit
+import csv
 # Moving the mouse onto the emulator and testing extremely basic movement options.
 itemList = []
 physWeaponList = []
@@ -11,12 +12,46 @@ staffList = []
 classList = []
 commandList = ["getUnits", "getEnemies",
                "getMoney", "getMapSize", "getMap", "getIsPlayerPhase"]
+#               id: name, Def Bonus, Avoid Bonus, Hp Recovery, Infantry A, Infantry B, Brigand, Pirate, Bereserker, Mages, Armor, Cav A, Cav B, Nomad, Nomad Trooper, Flier, Dragon
+# Create a second dictionary corresponding to ids, to allow for similar objects to share the same dictionary.
+# For example, (key ->)01:(value ->)01, 02:01 (02 is a road tile, which has the exact same stats as plain (01))
+
+
+# 04 - Closed Village (Blocked), 1F - Throne
+
+# note: Throne gets +5 Res
+terrainKey = {"01": "01", "02": "01", "13": "01", "17": "01",  # 01 - Plains, 02 - Road, 13 - Bridge, 17 - Floor,
+              # 19 - Obstacle, 2E - Roof, 26 - Cliff (need to check its not impassable)
+              "19": "19", "2E": "19", "26": "19",
+              "0C": "0C",  # 0C - Forest,
+              "11": "11",  # 11 - Mountain,
+              "12": "12",  # 12 - Peak,
+              "23": "23",  # 23 - Gate,
+              "05": "05", "03": "05", "06": "05",  # 05 - House, 03 - Village, 06 - Shop
+              "10": "10",  # 10 - River
+              "16": "16",  # 16 - Lake
+              "25": "25",  # 25 - Ruins (Village)
+              "1F": "1F",  # 1F - Throne
+              "0A": "0A",  # 0A - Fort
+              "04": "04", "1A": "04", "3F": "04", "1E": "04", "1B": "04"}  # 04 - Closed Village, 1A - Wall, 3F - Brace, 1E - Door (need to check door + brace), 1B - Breakable Wall
+#
+# terrainInfo = {"01": ["Plain", 0, 0, 0, 1,
+#                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], }
 
 
 def openItemFile(filename):
     with open(filename, "rt") as f:
         lines = [line.strip().split(', ') for line in f]
     return lines
+
+# unfinished open csv for terrain data
+
+
+def openCSV(filename):
+    with open(filename) as csv_file:
+        csv_reader = csv.reader(csv_file, delimeter=',')
+        rows = {}
+    return rows
 
 
 def fillItemLists():
@@ -118,6 +153,11 @@ def getEnemyData(data):
     enemyData = list(data)
     enemyList = storeUnits(enemyData)
     return enemyList
+
+
+def createMoveMap(mapData):
+    currLine = line.strip().lower().split(', ')
+    lines[currLine[0]] = currLine[1:]
 
 
 def main():
