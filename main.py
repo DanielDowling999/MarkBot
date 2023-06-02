@@ -10,6 +10,7 @@ physWeaponList = []
 magWeaponList = []
 staffList = []
 classList = []
+terrainDictionary = {}
 commandList = ["getUnits", "getEnemies",
                "getMoney", "getMapSize", "getMap", "getIsPlayerPhase"]
 #               id: name, Def Bonus, Avoid Bonus, Hp Recovery, Infantry A, Infantry B, Brigand, Pirate, Bereserker, Mages, Armor, Cav A, Cav B, Nomad, Nomad Trooper, Flier, Dragon
@@ -49,9 +50,12 @@ def openItemFile(filename):
 
 def openCSV(filename):
     with open(filename) as csv_file:
-        csv_reader = csv.reader(csv_file, delimeter=',')
-        rows = {}
-    return rows
+        csv_reader = csv.reader(csv_file, delimiter=',')
+        lines = {}
+        for line in csv_reader:
+            # currLine = line.strip().lower().split(', ')
+            lines[line[0]] = line[1:]
+    return lines
 
 
 def fillItemLists():
@@ -60,11 +64,13 @@ def fillItemLists():
     global magWeaponList
     global staffList
     global classList
+    global terrainDictionary
     itemList = openItemFile("Data/items.txt")
     physWeaponList = openItemFile("Data/physWeapons.txt")
     magWeaponList = openItemFile("Data/magWeapons.txt")
     staffList = openItemFile("Data/staves.txt")
     classList = openItemFile("Data/class.txt")
+    terrainDictionary = openCSV("Data/Terrain Data.csv")
 
 
 def moveTo(startX, startY, endX, endY):
@@ -162,7 +168,9 @@ def createMoveMap(mapData):
 
 def main():
     global commandList
+    global terrainDictionary
     fillItemLists()
+    print(terrainDictionary.get("1F", "Terrain Data Not Found"))
     # print("Items: " + str(itemList))
     # print("Physical Weapons: " + str(physWeaponList))
     # print("Magic Weapons: " + str(magWeaponList))
@@ -183,9 +191,9 @@ def main():
     # unitData = sockettest.main(commandList[0])
     # enemyData = sockettest.main(commandList[1])
     # money = int(sockettest.main(commandList[2]))
-    mapData = sockettest.main(commandList[4])
-    mapList = list(mapData)
-    print(mapList)
+    # mapData = sockettest.main(commandList[4])
+    # mapList = list(mapData)
+    # print(mapList)
     # print(mapList[20])
     # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
     # map stuff seems hard ;-;
