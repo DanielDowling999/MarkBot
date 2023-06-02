@@ -10,31 +10,35 @@ physWeaponList = []
 magWeaponList = []
 staffList = []
 classList = []
-terrainDictionary = {}
+terrainDictionary = {}  # id: name, Def Bonus, Avoid Bonus, Hp Recovery, Infantry A, Infantry B, Brigand, Pirate, Bereserker, Mages, Armor, Cav A, Cav B, Nomad, Nomad Trooper, Flier, Dragon
+
 commandList = ["getUnits", "getEnemies",
                "getMoney", "getMapSize", "getMap", "getIsPlayerPhase"]
-#               id: name, Def Bonus, Avoid Bonus, Hp Recovery, Infantry A, Infantry B, Brigand, Pirate, Bereserker, Mages, Armor, Cav A, Cav B, Nomad, Nomad Trooper, Flier, Dragon
 # Create a second dictionary corresponding to ids, to allow for similar objects to share the same dictionary.
 # For example, (key ->)01:(value ->)01, 02:01 (02 is a road tile, which has the exact same stats as plain (01))
 
 
-# 04 - Closed Village (Blocked), 1F - Throne
-
 # note: Throne gets +5 Res
-terrainKey = {"01": "01", "02": "01", "13": "01", "17": "01",  # 01 - Plains, 02 - Road, 13 - Bridge, 17 - Floor,
+
+terrainKey = {0x01: 0x01, 0x02: 0x01, 0x13: 0x01, 0x17: 0x01,  # 01 - Plains, 02 - Road, 13 - Bridge, 17 - Floor,
               # 19 - Obstacle, 2E - Roof, 26 - Cliff (need to check its not impassable)
-              "19": "19", "2E": "19", "26": "19",
-              "0C": "0C",  # 0C - Forest,
-              "11": "11",  # 11 - Mountain,
-              "12": "12",  # 12 - Peak,
-              "23": "23",  # 23 - Gate,
-              "05": "05", "03": "05", "06": "05",  # 05 - House, 03 - Village, 06 - Shop
-              "10": "10",  # 10 - River
-              "16": "16",  # 16 - Lake
-              "25": "25",  # 25 - Ruins (Village)
-              "1F": "1F",  # 1F - Throne
-              "0A": "0A",  # 0A - Fort
-              "04": "04", "1A": "04", "3F": "04", "1E": "04", "1B": "04"}  # 04 - Closed Village, 1A - Wall, 3F - Brace, 1E - Door (need to check door + brace), 1B - Breakable Wall
+              0x19: 0x19, 0x2E: 0x19, 0x26: 0x19,
+              0x0C: 0x0C,  # 0C - Forest,
+              0x11: 0x11,  # 11 - Mountain,
+              0x12: 0x12,  # 12 - Peak,
+              0x23: 0x23,  # 23 - Gate,
+              0x05: 0x05, 0x03: 0x05, 0x06: 0x05,  # 05 - House, 03 - Village, 06 - Shop
+              0x10: 0x10,  # 10 - River
+              0x16: 0x16,  # 16 - Lake
+              0x25: 0x25,  # 25 - Ruins (Village)
+              0x1F: 0x1F,  # 1F - Throne
+              0x0A: 0x0A,  # 0A - Fort
+              # 04 - Closed Village, 1A - Wall, 3F - Brace, 1E - Door (might split door and breakable wall into individual spaces), 1B - Breakable Wall
+              0x04: 0x04, 0x1A: 0x04, 0x3F: 0x04, 0x1E: 0x04, 0x1B: 0x04,
+              0x00: 0x00,  # skip bytes
+              0x1D: 0x1D  # 1D - Pillar
+              }
+# Note: Door may need to be seperated in order to allow for bot to open them (aka not view them entirely as a dead end)
 #
 # terrainInfo = {"01": ["Plain", 0, 0, 0, 1,
 #                     1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1], }
@@ -162,15 +166,35 @@ def getEnemyData(data):
 
 
 def createMoveMap(mapData):
-    currLine = line.strip().lower().split(', ')
-    lines[currLine[0]] = currLine[1:]
+    global terrainKey
+    global terrainDictionary
+    # print(mapData)
+    mapList = list(mapData)
+    # print(mapList)
+    moveMapList = []
+    mapRow = []
+    wasZero = False
+    for tile in mapList:
+        # -1 will be my default 'unknown map tile"
+        currTile = terrainKey.get(tile, "-1")
+        if currTile == 0 and not wasZero:
+            moveMapList.append(mapRow)
+            mapRow = []
+            wasZero = True
+        elif currTile == 0:
+            wasZero = False
+        else:
+            mapRow.append(currTile)
+
+    return moveMapList
 
 
 def main():
     global commandList
     global terrainDictionary
     fillItemLists()
-    print(terrainDictionary.get("1F", "Terrain Data Not Found"))
+    # print(terrainDictionary.get("1F", "Terrain Data Not Found"))
+
     # print("Items: " + str(itemList))
     # print("Physical Weapons: " + str(physWeaponList))
     # print("Magic Weapons: " + str(magWeaponList))
@@ -191,13 +215,17 @@ def main():
     # unitData = sockettest.main(commandList[0])
     # enemyData = sockettest.main(commandList[1])
     # money = int(sockettest.main(commandList[2]))
-    # mapData = sockettest.main(commandList[4])
+    mapData = sockettest.main(commandList[4])
+    mapList = list(mapData)
+    print("Base map data is:")
+    print(mapList)
+    moveMapList = createMoveMap(mapData)
+    print("Simplified map data is:")
+    print(moveMapList)
     # mapList = list(mapData)
     # print(mapList)
     # print(mapList[20])
     # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
-    # map stuff seems hard ;-;
-    # might be better to store map in memory? Rather than pull it every turn?
     # print(mapsize)
     # print(isPlayerPhase)
     # if isPlayerPhase == 'T':
