@@ -208,43 +208,27 @@ def unitAndDestructibleMap(moveMapList):
     return uAndDMap
 
 
-def findGoodMoves(simpleMapList, unit, unitList, enemyList):
+def findAllMoves(simpleMapList, unit, unitList, enemyList):
     # unit list will be used for rescue, dancing, healing and grouping up
     unitX = unit.xpos
     unitY = unit.ypos
-    # print(unitX)
-    # print(unitY)
     unitMove = unit.trueMove
     unitMoveType = unit.classMoveId
-    print(unitMoveType)
     mapX = len(simpleMapList[0])
     mapY = len(simpleMapList)
     unitMoveMap = numpy.zeros((mapY, mapX))
     for i in range(mapX):
         for j in range(mapY):
             unitMoveMap[j][i] = -9
-    # for currUnit in unitList:
-    #    unitMoveMap[currUnit.ypos][currUnit.xpos] = 100
+
     for enemy in enemyList:
-        #    # making it like this for now, will replace with actual unit data later?
-        simpleMapList[enemy.ypos][enemy.xpos] = 0x04
+        simpleMapList[enemy.ypos][enemy.xpos] = 0x9D
 
     unitMoveMap[unitY][unitX] = unitMove
-    # print(unitMoveMap)
-    # print(simpleMapList)
-    # print(unitMoveType)
+
     unitMoveMap = realFloodFill(
         unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMapList, unitMoveType)
     return unitMoveMap
-
-
-def floodFill(unitMoveMap, moveMapList, unitMoveType):
-    global terrainDictionary
-
-    return
-
-# Works, but need to include enemies as unblockable terrain. Also need to go look at the serenes forest data and fix the terrain data, as
-# a lot of the data on the fire emblem wiki is incorrect
 
 
 def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
@@ -347,7 +331,10 @@ def main():
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
-    print(findGoodMoves(simpleMapList, unitList[3], unitList, enemyList))
+    for units in unitList:
+        print(units.name + "'s possible moves")
+        print(findAllMoves(simpleMapList, units, unitList, enemyList))
+
     # unitMoveX, unitMoveY = findGoodMoves(
     #    moveMapList, unitList[0], unitList, enemyList)
     # print("Simplified map data is:")

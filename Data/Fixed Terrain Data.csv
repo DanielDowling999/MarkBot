@@ -16,3 +16,4 @@ Id,Terrain Type,Def,Avo,HP rec.,Infantry A,Infantry B,Brigand,Pirates,Berserker,
 1F,Throne,2,20,-,1,1,1,1,1,1,1,1,1,1,1,1
 19,Obstacle,0,0,-,-,-,-,-,-,-,-,-,-,-,-,1
 04,Door/Wall,0,0,-,-,-,-,-,-,-,-,-,-,-,-,-
+9D,Enemy,0,0,-,-,-,-,-,-,-,-,-,-,-,-,-
