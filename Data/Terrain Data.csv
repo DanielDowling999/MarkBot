@@ -1,4 +1,4 @@
-Id,Terrain Type,Def,Avo,HP rec.,Infantry A,Infantry B,Brigand,Pirates,Berserker,Mages,Armor,Cavalry A,Cavalry B,Nomad,Nomadic Trooper,Fliers
+Id,Terrain Type,Def,Avo,HP rec.,Infantry A,Infantry B,Brigand,Pirates,Berserker,Mages,Armor,Cavalry A,Cavalry B,Nomad,Nomadic Trooper,Flying
 01,Plain,0,0,-,1,1,1,1,1,1,1,1,1,1,1,1
 0C,Forest,1,20,-,2,2,2,2,2,2,2,2,3,3,2,1
 11,Mountain,1,30,-,4,3,3,3,3,4,-,-,6,-,5,1

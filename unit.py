@@ -63,6 +63,7 @@ class Unit:
         self.className = classData[0]
         self.classMove = classData[1]
         self.classCon = classData[2]
+        # need to check dancer movement type manually, since it isn't on the website
         self.classMoveType = classData[3]
         self.trueMove = int(self.classMove) + int(self.movBonus)
         self.trueCon = int(self.classCon) + int(self.conBonus)
@@ -88,7 +89,6 @@ class Unit:
 
     # def getClassMoveType(self):
     #    return Unit.classList.get(self.classId)[3]
-
 
     def updateUnit(self, unitData):
         self.classId = str(hex(

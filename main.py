@@ -4,6 +4,7 @@ import time
 import sockettest
 from unit import Unit
 import csv
+import numpy
 # Moving the mouse onto the emulator and testing extremely basic movement options.
 itemList = []
 physWeaponList = []
@@ -33,10 +34,12 @@ terrainKey = {0x01: 0x01, 0x02: 0x01, 0x13: 0x01, 0x17: 0x01,  # 01 - Plains, 02
               0x25: 0x25,  # 25 - Ruins (Village)
               0x1F: 0x1F,  # 1F - Throne
               0x0A: 0x0A,  # 0A - Fort
-              # 04 - Closed Village, 1A - Wall, 3F - Brace, 1E - Door (might split door and breakable wall into individual spaces), 1B - Breakable Wall
-              0x04: 0x04, 0x1A: 0x04, 0x3F: 0x04, 0x1E: 0x04, 0x1B: 0x04,
+              # 04 - Closed Village, 1A - Wall, 3F - Brace
+              0x04: 0x04, 0x1A: 0x04, 0x3F: 0x04,
               0x00: 0x00,  # skip bytes
-              0x1D: 0x1D  # 1D - Pillar
+              0x1D: 0x1D,  # 1D - Pillar
+              0x1B: 0x1B,  # Breakable Wall
+              0x1E: 0x1E  # Locked Door
               }
 # Note: Door may need to be seperated in order to allow for bot to open them (aka not view them entirely as a dead end)
 #
@@ -55,6 +58,7 @@ def openItemFile(filename):
 def openCSV(filename):
     with open(filename) as csv_file:
         csv_reader = csv.reader(csv_file, delimiter=',')
+        next(csv_reader)
         lines = {}
         for line in csv_reader:
             # currLine = line.strip().lower().split(', ')
@@ -188,6 +192,73 @@ def createMoveMap(mapData):
 
     return moveMapList
 
+# Don't think I would actually use belowv for anything.
+
+
+def unitAndDestructibleMap(moveMapList):
+    mapX = moveMapList[0].length
+    mapY = moveMapList.length
+    uAndDMap = numpy.zeros(mapY, mapX)
+    for i in range(mapX):
+        for j in range(mapY):
+            if moveMapList[j][i] == 0x1B:
+                uAndDMap[j][i] = 0x1B
+
+    return uAndDMap
+
+
+def findGoodMoves(moveMapList, unit, unitList, enemyList):
+    # unit list will be used for rescue, dancing, healing and grouping up
+    unitX = unit.xpos
+    unitY = unit.ypos
+    unitMove = unit.trueMove
+    unitMoveType = unit.classMoveType
+    mapX = len(moveMapList[0])
+    mapY = len(moveMapList)
+    unitMoveMap = numpy.zeros((mapY, mapX))
+    # unitMoveMap[unitY][unitX] = unitMove
+    for currUnit in unitList:
+        unitMoveMap[currUnit.ypos][currUnit.xpos] = 100
+    for enemy in enemyList:
+        # making it like this for now, will replace with actual unit data later?
+        unitMoveMap[enemy.ypos][enemy.xpos] = 200
+
+    unitMoveMap[unitY][unitX] = unitMove
+    print(unitMoveMap)
+    unitMoveX = 0
+    unitMoveY = 0
+
+    return unitMoveX, unitMoveY
+
+
+def floodFill(unitMoveMap, moveMapList, unitMoveType):
+    global terrainDictionary
+
+    return
+
+
+def realFloodFill(x, y, moveMapList, unitMoveType):
+    global terrainDictionary
+    if (x < 0 or x >= len(moveMapList[0]) or y < 0 or y >= len(moveMapList)):
+        return
+    if not passableTerrain(moveMapList[y][x], unitMoveType):
+        return
+
+    return
+
+# this works, but will need to change classMoveType to be a number. Could just create a dicitonary where the name is the id and the offset is the value
+
+
+def passableTerrain(tile, unitMoveType):
+    global terrainDictionary
+    print(terrainDictionary)
+    tileData = terrainDictionary.get(tile, "found nothing")
+    print(tileData)
+    unitMoveOnTile = tileData[4+unitMoveType]
+    if unitMoveOnTile == "-":
+        return False
+    return True
+
 
 def main():
     global commandList
@@ -212,16 +283,21 @@ def main():
     # print(mapxlength)
     # print(mapylength)
 
-    # unitData = sockettest.main(commandList[0])
-    # enemyData = sockettest.main(commandList[1])
+    unitData = sockettest.main(commandList[0])
+    unitList = getUnitData(unitData)
+    enemyData = sockettest.main(commandList[1])
+    enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
     mapData = sockettest.main(commandList[4])
     mapList = list(mapData)
-    print("Base map data is:")
-    print(mapList)
+    # print("Base map data is:")
+    # print(mapList)
     moveMapList = createMoveMap(mapData)
-    print("Simplified map data is:")
-    print(moveMapList)
+    print(passableTerrain('19', 11))
+    # unitMoveX, unitMoveY = findGoodMoves(
+    #    moveMapList, unitList[0], unitList, enemyList)
+    # print("Simplified map data is:")
+    # print(moveMapList)
     # mapList = list(mapData)
     # print(mapList)
     # print(mapList[20])
