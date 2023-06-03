@@ -1,79 +1,79 @@
 Class ID, Class Name, Move, Con, Move Type (Infantry A,Infantry B,Brigand,Pirates,Berserker,Mages,Armor,Cavalry A,Cavalry B,Nomad,Nomadic Trooper,Flying) 
-0204, Lord (Lyn), 5, 5, Infantry A
-03FC, Blade Lord, 6, 6, Infantry A
-0E7C, Male Cavalier, 7, 9, Cavalry A
-0ED0, Female Cavalier, 7, 9, Cavalry A
-0F24, Male Paladin, 8, 11, Cavalry B
-0F78, Female Paladin, 8, 9, Cavalry B
-1410, Brigand, 5, 12, Brigand
-01B0, Lord (Eliwood), 5, 7, Infantry A
-03A8, Knight Lord, 7, 9, Cavalry B
-0258, Lord (Hector), 5, 13, Infantry A
-0450, Great Lord, 5, 15, Armor
-04A4, Male Mercenary, 5, 9, Infantry A
-04F8, Female Mercenary, 5, 8, Infantry A
-054C, Male Hero, 6, 10, Infantry A
-05A0, Female Hero, 6, 9, Infantry A
-05F4, Male Myrmidon, 5, 8, Infantry A
-0648, Female Myrmidon, 5, 5, Infantry A
-069C, Male Swordmaster, 6, 9, Infantry A
-06F0, Female Swordmaster, 6, 7, Infantry A
-0744, Fighter, 5, 11, Infantry B
-0798, Warrior, 6, 13, Infantry B
-07EC, Male Knight, 4, 13, Armor
-0840, Female Knight, 4, 10, Armor
-0894, Male General, 5, 15, Armor
-08E8, Female General, 5, 11, Armor
-093C, Male Archer, 5, 7, Infantry A
-0990, Female Archer, 5, 5, Infantry A
-09E4, Male Sniper, 6, 8, Infantry A
-0A38, Female Sniper, 6, 6, Infantry A
-0A8C, Monk, 5, 6, Mages
-0AE0, Cleric, 5, 4, Mages
-0B34, Male Bishop, 6, 7, Mages
-0B88, Female Bishop, 6, 5, Mages
-0BDC, Male Mage, 5, 6, Mages
-0C30, Female Mage, 5, 3, Mages
-0C84, Male Sage, 6, 7, Mages
-0CD8, Female Sage, 6, 4, Mages
-0D2C, Male Shaman, 5, 7, Mages
-0D80, Female Shaman, 5, 3, Mages
-0DD4, Male Druid, 6, 8, Mages
-0E28, Female Druid, 6, 4, Mages
-0FCC, Troubadour, 7, 5, Cavalry A
-1020, Valkyrie, 8, 6, Cavalry B
-1074, Male Nomad, 7, 7, Nomad
-10C8, Female Nomad, 7, 5, Nomad 
-111C, Male Nomad Trooper, 8, 8, Nomad Trooper
-1170, Female Nomad Trooper, 8, 6, Nomad Trooper
-11C4, Pegasus Knight, 7, 5, Flying
-1218, Falcoknight, 8, 6, Flying
-126C, Male Wyvern Rider, 7, 10, Flying
-12C0, Female Wyvern Rider, 7, 9, Flying
-1314, Male Wyvern Lord, 8, 11, Flying
-1368, Female Wyvern Lord, 8, 10, Flying
-1464, Pirate, 5, 10, Pirates
-14B8, Berserker, 6, 13, Berserker
-150C, Male Thief, 6, 6, Infantry A
-1560, Female Thief, 6, 5, Infantry A
-15B4, Assassin, 6, 6, Infantry A
-165C, Dancer, 5, 4, Infantry A
-16B0, Bard, 5, 3, Infantry A
-1704, Archsage, 6, 9, Mages
-17AC, Transporter (Tent), 0, 25, Tent
-1E90, Transporter (Cart), 5, 25, Merlinus
-13BC, Soldier, 5, 6, Infantry A
-1608, Dead Civilian, N/A, N/A, N/A
-1758, Magic Seal, 7, 6, Mages
-1800, Dark Druid, 6, 10, Mages
-1854, Fire Dragon, 8, 25, Dragon
-1B9C, Corsair, 5, 10, Pirates
-1EE4, Sage (Limstella), 6, 7, Mages
-19A4, Bramimond, 5, 6, Mages
-1AA0, Prince, 5, 7, Infantry A
-1F38, Archer riding Ballista, 3, 25, Ballista
-1F8C, Archer riding Iron Ballista, 3, 25, Ballista 
-1FE0, Archer riding Killer Ballista, 3, 25, Ballista
-2034, Empty Ballista, 3, 25, Ballista
-2088, Empty Iron Ballista, 3, 25, Ballista
-20DC, Empty Killer Ballista, 3, 25, Ballista
+0204, Lord (Lyn), 5, 5, Infantry A, 0
+03FC, Blade Lord, 6, 6, Infantry A, 0
+0E7C, Male Cavalier, 7, 9, Cavalry A, 7
+0ED0, Female Cavalier, 7, 9, Cavalry A, 7
+0F24, Male Paladin, 8, 11, Cavalry B, 8
+0F78, Female Paladin, 8, 9, Cavalry B, 8
+1410, Brigand, 5, 12, Brigand, 2
+01B0, Lord (Eliwood), 5, 7, Infantry A, 0
+03A8, Knight Lord, 7, 9, Cavalry B, 8
+0258, Lord (Hector), 5, 13, Infantry A, 0
+0450, Great Lord, 5, 15, Armor, 6
+04A4, Male Mercenary, 5, 9, Infantry A, 0
+04F8, Female Mercenary, 5, 8, Infantry A, 0
+054C, Male Hero, 6, 10, Infantry A, 0
+05A0, Female Hero, 6, 9, Infantry A, 0
+05F4, Male Myrmidon, 5, 8, Infantry A, 0
+0648, Female Myrmidon, 5, 5, Infantry A, 0
+069C, Male Swordmaster, 6, 9, Infantry A, 0
+06F0, Female Swordmaster, 6, 7, Infantry A, 0
+0744, Fighter, 5, 11, Infantry B, 1
+0798, Warrior, 6, 13, Infantry B, 1
+07EC, Male Knight, 4, 13, Armor, 6
+0840, Female Knight, 4, 10, Armor, 6
+0894, Male General, 5, 15, Armor, 6
+08E8, Female General, 5, 11, Armor, 6
+093C, Male Archer, 5, 7, Infantry A, 0
+0990, Female Archer, 5, 5, Infantry A, 0
+09E4, Male Sniper, 6, 8, Infantry A, 0
+0A38, Female Sniper, 6, 6, Infantry A, 0
+0A8C, Monk, 5, 6, Mages, 5
+0AE0, Cleric, 5, 4, Mages, 5
+0B34, Male Bishop, 6, 7, Mages, 5
+0B88, Female Bishop, 6, 5, Mages, 5
+0BDC, Male Mage, 5, 6, Mages, 5
+0C30, Female Mage, 5, 3, Mages, 5
+0C84, Male Sage, 6, 7, Mages, 5
+0CD8, Female Sage, 6, 4, Mages, 5
+0D2C, Male Shaman, 5, 7, Mages, 5
+0D80, Female Shaman, 5, 3, Mages, 5
+0DD4, Male Druid, 6, 8, Mages, 5
+0E28, Female Druid, 6, 4, Mages, 5
+0FCC, Troubadour, 7, 5, Cavalry A, 7
+1020, Valkyrie, 8, 6, Cavalry B, 8
+1074, Male Nomad, 7, 7, Nomad, 9
+10C8, Female Nomad, 7, 5, Nomad, 9
+111C, Male Nomad Trooper, 8, 8, Nomad Trooper, 10
+1170, Female Nomad Trooper, 8, 6, Nomad Trooper, 10
+11C4, Pegasus Knight, 7, 5, Flying, 11
+1218, Falcoknight, 8, 6, Flying, 11
+126C, Male Wyvern Rider, 7, 10, Flying, 11
+12C0, Female Wyvern Rider, 7, 9, Flying, 11
+1314, Male Wyvern Lord, 8, 11, Flying, 11
+1368, Female Wyvern Lord, 8, 10, Flying, 11
+1464, Pirate, 5, 10, Pirates, 3
+14B8, Berserker, 6, 13, Berserker, 4
+150C, Male Thief, 6, 6, Infantry A, 0
+1560, Female Thief, 6, 5, Infantry A, 0
+15B4, Assassin, 6, 6, Infantry A, 0
+165C, Dancer, 5, 4, Infantry A, 0
+16B0, Bard, 5, 3, Infantry A, 0
+1704, Archsage, 6, 9, Mages, 5
+17AC, Transporter (Tent), 0, 25, Tent, N/A
+1E90, Transporter (Cart), 5, 25, Merlinus, 13
+13BC, Soldier, 5, 6, Infantry A, 0
+1608, Dead Civilian, N/A, N/A, N/A, N/A
+1758, Magic Seal, 7, 6, Mages, 5
+1800, Dark Druid, 6, 10, Mages, 5
+1854, Fire Dragon, 8, 25, Dragon, 15
+1B9C, Corsair, 5, 10, Pirates, 3
+1EE4, Sage (Limstella), 6, 7, Mages, 5
+19A4, Bramimond, 5, 6, Mages, 5
+1AA0, Prince, 5, 7, Infantry A, 0
+1F38, Archer riding Ballista, 3, 25, Ballista, 14
+1F8C, Archer riding Iron Ballista, 3, 25, Ballista, 14
+1FE0, Archer riding Killer Ballista, 3, 25, Ballista, 14
+2034, Empty Ballista, 3, 25, Ballista, 14
+2088, Empty Iron Ballista, 3, 25, Ballista, 14
+20DC, Empty Killer Ballista, 3, 25, Ballista, 14

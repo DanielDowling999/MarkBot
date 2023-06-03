@@ -34,12 +34,12 @@ terrainKey = {0x01: 0x01, 0x02: 0x01, 0x13: 0x01, 0x17: 0x01,  # 01 - Plains, 02
               0x25: 0x25,  # 25 - Ruins (Village)
               0x1F: 0x1F,  # 1F - Throne
               0x0A: 0x0A,  # 0A - Fort
-              # 04 - Closed Village, 1A - Wall, 3F - Brace
-              0x04: 0x04, 0x1A: 0x04, 0x3F: 0x04,
+              # 04 - Closed Village, 1A - Wall, 3F - Brace, 0x2C Sacae Building Roof
+              0x04: 0x04, 0x1A: 0x04, 0x3F: 0x04, 0x2C: 0x04, 0x1B: 0x04, 0x1E: 0x04,
               0x00: 0x00,  # skip bytes
-              0x1D: 0x1D,  # 1D - Pillar
-              0x1B: 0x1B,  # Breakable Wall
-              0x1E: 0x1E  # Locked Door
+              0x1D: 0x1D  # 1D - Pillar
+              # 0x1B: 0x1B,  # Breakable Wall
+              # 0x1E: 0x1E  # Locked Door
               }
 # Note: Door may need to be seperated in order to allow for bot to open them (aka not view them entirely as a dead end)
 #
@@ -62,7 +62,8 @@ def openCSV(filename):
         lines = {}
         for line in csv_reader:
             # currLine = line.strip().lower().split(', ')
-            lines[line[0]] = line[1:]
+            lines[int(line[0], base=16)] = line[1:]
+
     return lines
 
 
@@ -207,28 +208,34 @@ def unitAndDestructibleMap(moveMapList):
     return uAndDMap
 
 
-def findGoodMoves(moveMapList, unit, unitList, enemyList):
+def findGoodMoves(simpleMapList, unit, unitList, enemyList):
     # unit list will be used for rescue, dancing, healing and grouping up
     unitX = unit.xpos
     unitY = unit.ypos
+    # print(unitX)
+    # print(unitY)
     unitMove = unit.trueMove
-    unitMoveType = unit.classMoveType
-    mapX = len(moveMapList[0])
-    mapY = len(moveMapList)
+    unitMoveType = unit.classMoveId
+    print(unitMoveType)
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
     unitMoveMap = numpy.zeros((mapY, mapX))
-    # unitMoveMap[unitY][unitX] = unitMove
-    for currUnit in unitList:
-        unitMoveMap[currUnit.ypos][currUnit.xpos] = 100
-    for enemy in enemyList:
-        # making it like this for now, will replace with actual unit data later?
-        unitMoveMap[enemy.ypos][enemy.xpos] = 200
+    for i in range(mapX):
+        for j in range(mapY):
+            unitMoveMap[j][i] = -9
+    # for currUnit in unitList:
+    #    unitMoveMap[currUnit.ypos][currUnit.xpos] = 100
+    # for enemy in enemyList:
+    #    # making it like this for now, will replace with actual unit data later?
+    #    unitMoveMap[enemy.ypos][enemy.xpos] = 200
 
     unitMoveMap[unitY][unitX] = unitMove
-    print(unitMoveMap)
-    unitMoveX = 0
-    unitMoveY = 0
-
-    return unitMoveX, unitMoveY
+    # print(unitMoveMap)
+    # print(simpleMapList)
+    # print(unitMoveType)
+    unitMoveMap = realFloodFill(
+        unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMapList, unitMoveType)
+    return unitMoveMap
 
 
 def floodFill(unitMoveMap, moveMapList, unitMoveType):
@@ -236,24 +243,67 @@ def floodFill(unitMoveMap, moveMapList, unitMoveType):
 
     return
 
+# Works, but need to include enemies as unblockable terrain. Also need to go look at the serenes forest data and fix the terrain data, as
+# a lot of the data on the fire emblem wiki is incorrect
 
-def realFloodFill(x, y, moveMapList, unitMoveType):
+
+def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
     global terrainDictionary
+    # print(moveMapList[y][x])
     if (x < 0 or x >= len(moveMapList[0]) or y < 0 or y >= len(moveMapList)):
         return
     if not passableTerrain(moveMapList[y][x], unitMoveType):
         return
+    tileData = terrainDictionary.get(moveMapList[y][x])
+    # print(tileData)
 
-    return
+    movePenalty = tileData[4+unitMoveType]
+    tempMove = int(prev) - int(movePenalty)
 
-# this works, but will need to change classMoveType to be a number. Could just create a dicitonary where the name is the id and the offset is the value
+    if (unitMoveMap[y][x] == tempMove or tempMove < 0 or (unitMoveMap[y][x] > tempMove and unitMoveMap[y][x] != unitMove)):
+        return
+    # print(tempMove)
+    # if unitMoveMap[y][x] > tempMove:
+    #    return
+    if unitMoveMap[y][x] < tempMove:
+        unitMoveMap[y][x] = tempMove
+    # print("Start of new")
+    # print(x)
+    # print(y)
+    # print(unitMoveMap)
+    realFloodFill(x-1, y, unitMoveMap[y][x],
+                  unitMoveMap, unitMove, moveMapList, unitMoveType)
+    realFloodFill(x+1, y, unitMoveMap[y][x],
+                  unitMoveMap, unitMove, moveMapList, unitMoveType)
+    realFloodFill(x, y-1, unitMoveMap[y][x],
+                  unitMoveMap, unitMove, moveMapList, unitMoveType)
+    realFloodFill(x, y+1, unitMoveMap[y][x],
+                  unitMoveMap, unitMove, moveMapList, unitMoveType)
+    return unitMoveMap
+
+
+# def getValidMoves(x, y, moveMapList, unitMoveType):
+#   global terrainDictionary
+#    # print(moveMapList[y][x])
+#    if (x < 0 or x >= len(moveMapList[0]) or y < 0 or y >= len(moveMapList)):
+#        return
+#    if not passableTerrain(moveMapList[y][x], unitMoveType):
+#        return
+# tileData = terrainDictionary.get(moveMapList[y][x])
+ #   # print(tileData)
+ #
+ #   movePenalty = tileData[4+unitMoveType]
+ #   tempMove = int(prev) - int(movePenalty)
+ #   return validMoveMap
 
 
 def passableTerrain(tile, unitMoveType):
     global terrainDictionary
-    print(terrainDictionary)
-    tileData = terrainDictionary.get(tile, "found nothing")
-    print(tileData)
+    # print(terrainDictionary)
+    # print(terrainDictionary.get("01", "something's going wrong here"))
+    # print(terrainDictionary.get(0x0))
+    tileData = terrainDictionary.get(tile, "Found no tile")
+    # print(tileData)
     unitMoveOnTile = tileData[4+unitMoveType]
     if unitMoveOnTile == "-":
         return False
@@ -290,10 +340,14 @@ def main():
     # money = int(sockettest.main(commandList[2]))
     mapData = sockettest.main(commandList[4])
     mapList = list(mapData)
+    # print(mapList)
     # print("Base map data is:")
     # print(mapList)
-    moveMapList = createMoveMap(mapData)
-    print(passableTerrain('19', 11))
+    simpleMapList = createMoveMap(mapData)
+    # print(simpleMapList)
+    # print(passableTerrain('19', unitList[3].classMoveId))
+    # print(unitList[0].classMoveId)
+    print(findGoodMoves(simpleMapList, unitList[3], unitList, enemyList))
     # unitMoveX, unitMoveY = findGoodMoves(
     #    moveMapList, unitList[0], unitList, enemyList)
     # print("Simplified map data is:")

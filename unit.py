@@ -65,6 +65,7 @@ class Unit:
         self.classCon = classData[2]
         # need to check dancer movement type manually, since it isn't on the website
         self.classMoveType = classData[3]
+        self.classMoveId = int(classData[4])
         self.trueMove = int(self.classMove) + int(self.movBonus)
         self.trueCon = int(self.classCon) + int(self.conBonus)
         self.name = Unit.nameList.get(self.nameId, "E")[0]
