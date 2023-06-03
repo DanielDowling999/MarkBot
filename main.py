@@ -79,7 +79,7 @@ def fillItemLists():
     magWeaponList = openItemFile("Data/magWeapons.txt")
     staffList = openItemFile("Data/staves.txt")
     classList = openItemFile("Data/class.txt")
-    terrainDictionary = openCSV("Data/Terrain Data.csv")
+    terrainDictionary = openCSV("Data/Fixed Terrain Data.csv")
 
 
 def moveTo(startX, startY, endX, endY):
@@ -225,9 +225,9 @@ def findGoodMoves(simpleMapList, unit, unitList, enemyList):
             unitMoveMap[j][i] = -9
     # for currUnit in unitList:
     #    unitMoveMap[currUnit.ypos][currUnit.xpos] = 100
-    # for enemy in enemyList:
-    #    # making it like this for now, will replace with actual unit data later?
-    #    unitMoveMap[enemy.ypos][enemy.xpos] = 200
+    for enemy in enemyList:
+        #    # making it like this for now, will replace with actual unit data later?
+        simpleMapList[enemy.ypos][enemy.xpos] = 0x04
 
     unitMoveMap[unitY][unitX] = unitMove
     # print(unitMoveMap)
