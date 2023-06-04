@@ -97,15 +97,56 @@ def moveTo(startX, startY, endX, endY):
     time.sleep(1)
 
 
-def enemyInRange(currUnit, enemyList):
+def enemyInRange(unitMoveMap, enemyList, unitMaxRange):
     enemiesInRange = []
-    unitX = currUnit.xpos
-    unitY = currUnit.ypos
     for enemy in enemyList:
-        if (abs(unitX - enemy.xpos) + abs(unitY-enemy.ypos) < currUnit.trueMove):
-            enemiesInRange.append(enemy)
-
+        enemyX = enemy.xpos
+        enemyY = enemy.ypos
+        if enemyX-1 >= 0:
+            # will eventually need to include unit range in this. And by eventually, I mean now
+            if unitMoveMap[enemyY][enemyX-1] > 0:
+                enemiesInRange.append(enemy)
+                continue
+        if enemyY-1 >= 0:
+            if unitMoveMap[enemyY-1][enemyX] > 0:
+                enemiesInRange.append(enemy)
+                continue
+        if enemyX+1 < len(unitMoveMap):
+            if unitMoveMap[enemyY][enemyX+1] > 0:
+                enemiesInRange.append(enemy)
+                continue
+        if enemyY+1 < len(unitMoveMap[0]):
+            if unitMoveMap[enemyY+1][enemyX] > 0:
+                enemiesInRange.append(enemy)
+                continue
     return enemiesInRange
+
+    """for i in range(len(unitMoveMap)):
+        for j in range(len(unitMoveMap[0])):
+            if (inRange(unitMoveMap, j, i)):
+                for enemy in enemyList:
+                    if j == enemy.xpos and i == enemy.ypos:
+                        enemiesInRange.append(enemy)
+                        print(enemy.xpos, enemy.ypos)
+
+    return enemiesInRange"""
+
+
+def inRange(unitMoveMap, xpos, ypos):
+    if not (unitMoveMap[ypos][xpos] == -8):
+        return False
+    if xpos-1 > 0:
+        if not (unitMoveMap[ypos][xpos-1] == -9):
+            return True
+    if ypos-1 > 0:
+        if not (unitMoveMap[ypos-1][xpos] == -9):
+            return True
+    if xpos+1 < len(unitMoveMap[0]):
+        if not (unitMoveMap[ypos][xpos+1] == -9):
+            return True
+    if ypos+1 < len(unitMoveMap):
+        if not (unitMoveMap[ypos][xpos] == -9):
+            return True
 
 
 def decideMove(currUnit, unitList, enemyList):
@@ -170,7 +211,7 @@ def getEnemyData(data):
     return enemyList
 
 
-def createMoveMap(mapData):
+def createMoveMap(mapData, unitList, enemyList):
     global terrainKey
     global terrainDictionary
     # print(mapData)
@@ -223,7 +264,7 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList):
 
     for enemy in enemyList:
         simpleMapList[enemy.ypos][enemy.xpos] = 0x9D
-
+    #    unitMoveMap[enemy.ypos][enemy.xpos] = -8
     unitMoveMap[unitY][unitX] = unitMove
 
     unitMoveMap = realFloodFill(
@@ -266,19 +307,18 @@ def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
     return unitMoveMap
 
 
-# def getValidMoves(x, y, moveMapList, unitMoveType):
-#   global terrainDictionary
-#    # print(moveMapList[y][x])
-#    if (x < 0 or x >= len(moveMapList[0]) or y < 0 or y >= len(moveMapList)):
-#        return
-#    if not passableTerrain(moveMapList[y][x], unitMoveType):
-#        return
-# tileData = terrainDictionary.get(moveMapList[y][x])
- #   # print(tileData)
- #
- #   movePenalty = tileData[4+unitMoveType]
- #   tempMove = int(prev) - int(movePenalty)
- #   return validMoveMap
+def findBestMove(simpleMapList, unitMoveList, unit, unitList, enemyList):
+    if (unit.currHP < unit.maxHP/2):
+        bestMoveAction = "heal"
+
+    # the default best move is to not move at all.
+    bestMoveX = unit.xpos
+    bestMoveY = unit.ypos
+    enemiesInRange = enemyInRange(unitMoveList, enemyList)
+    print(enemiesInRange)
+    bestMoveAction = "nothing"
+
+    return bestMoveX, bestMoveY, bestMoveAction
 
 
 def passableTerrain(tile, unitMoveType):
@@ -327,13 +367,20 @@ def main():
     # print(mapList)
     # print("Base map data is:")
     # print(mapList)
-    simpleMapList = createMoveMap(mapData)
+    simpleMapList = createMoveMap(mapData, unitList, enemyList)
+
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
+    unitMoveList = []
+    # allMoveList = []
     for units in unitList:
         print(units.name + "'s possible moves")
-        print(findAllMoves(simpleMapList, units, unitList, enemyList))
+        unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
+        print(unitMoveList)
+
+        unitBestMove, bestX, bestY = findBestMove(
+            simpleMapList, unitMoveList, units, unitList, enemyList)
 
     # unitMoveX, unitMoveY = findGoodMoves(
     #    moveMapList, unitList[0], unitList, enemyList)

@@ -7,6 +7,10 @@ def openClassFile(filename):
             lines[currLine[0]] = currLine[1:]
     return lines
 
+def openItemFile(filename):
+    with open(filename, "rt") as f:
+        lines = [line.strip().split(', ') for line in f]
+    return lines
 
 class Unit:
     # Notably the unit's con, aid and movement aren't directly accessible from the character's data address. Move and con bonuses are saved here, but will likely need
@@ -18,6 +22,10 @@ class Unit:
     classList = openClassFile("Data/class.txt")
     nameList = openClassFile("Data/units.txt")
     # itemList = openClassFile("Data/items.txt")
+    itemList = openItemFile("Data/items.txt")
+    physWeaponList = openItemFile("Data/physWeapons.txt")
+    magWeaponList = openItemFile("Data/magWeapons.txt")
+    staveList = openItemFile("Data/staves.txt")
 
     def __init__(self, unitData):
 
@@ -69,6 +77,7 @@ class Unit:
         self.trueMove = int(self.classMove) + int(self.movBonus)
         self.trueCon = int(self.classCon) + int(self.conBonus)
         self.name = Unit.nameList.get(self.nameId, "E")[0]
+        self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
         # self.classCon = self.getClassCon()
@@ -90,6 +99,13 @@ class Unit:
 
     # def getClassMoveType(self):
     #    return Unit.classList.get(self.classId)[3]
+
+    def findMaxRange(self):
+        maxRange = 0
+        itemPos = 0
+        for items in self.inventory:
+            if(items[0])
+        return maxRange
 
     def updateUnit(self, unitData):
         self.classId = str(hex(
