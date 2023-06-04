@@ -18,9 +18,9 @@ class Unit:
     # Notably the unit's con, aid and movement aren't directly accessible from the character's data address. Move and con bonuses are saved here, but will likely need
     # to hardcode the base move and con based on their class.
 
-    physWeaponList = [["01", "Iron Sword", ""]]
-    magWeaponList = []
-    otherList = []
+    # physWeaponList = [["01", "Iron Sword", ""]]
+    # magWeaponList = []
+    # otherList = []
     classList = openClassFile("Data/class.txt")
     nameList = openClassFile("Data/units.txt")
     # itemList = openClassFile("Data/items.txt")
@@ -28,6 +28,11 @@ class Unit:
     physWeaponList = openItemFile("Data/physWeapons.txt")
     magWeaponList = openItemFile("Data/magWeapons.txt")
     staveList = openItemFile("Data/staves.txt")
+    weaponRanksList = {"Sword": 0, "Lance": 1, "Axe": 2,
+                       "Bow": 3, "Staff": 4, "Anima": 5, "Light": 6, "Dark": 7}
+    minWeaponRanksList = {"-": 0x00, "E": 0x01, "D": 0x1F,
+                          "C": 0x47, "B": 0x79, "A": 0xB5, "S": 0xFB}
+    # order is Sword, Lance, Axe, Bow, Staff, Anima, Light, Dark}
 
     def __init__(self, unitData):
 
@@ -59,6 +64,7 @@ class Unit:
         self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
             unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
         self.hasMoved = False
+
         # 00 - weapon disabled
         # 01 through 1E - Skill level E
         # 1F through 46 - Skill level D
@@ -104,12 +110,27 @@ class Unit:
 
     # Find units (might also add a min range for cases like the unit having a long bow/ruin tome)
 
+# Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
+# or not they can use it, then just pull the longest range one when calcing range.
+
     def findMaxRange(self):
+
         maxRange = 0
         itemPos = 0
-        for items in self.inventory:
-            return maxRange
+        for item in self.inventory:
+            physWeapon = Unit.physWeaponList.get(item[0], False)
+            if physWeapon:
+                physWeaponType = Unit.weaponRanksList.get(physWeapon[1])
+                physWeaponRank = physWeapon[2]
+                if self.weaponRanks[physWeaponType] >= Unit.minWeaponRanksList.get(physWeaponRank):
+                    if (maxRange < physWeapon[7]):
+                        maxRange = physWeapon[7]
+
         return maxRange
+
+    # Check if unit can use weapon type
+    # Check if unit has a high enough weapon rank
+    # Check if range > maxRange (and range < minRange)
 
     def updateUnit(self, unitData):
         self.classId = str(hex(
