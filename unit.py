@@ -7,10 +7,12 @@ def openClassFile(filename):
             lines[currLine[0]] = currLine[1:]
     return lines
 
+
 def openItemFile(filename):
     with open(filename, "rt") as f:
         lines = [line.strip().split(', ') for line in f]
     return lines
+
 
 class Unit:
     # Notably the unit's con, aid and movement aren't directly accessible from the character's data address. Move and con bonuses are saved here, but will likely need
@@ -100,11 +102,13 @@ class Unit:
     # def getClassMoveType(self):
     #    return Unit.classList.get(self.classId)[3]
 
+    # Find units (might also add a min range for cases like the unit having a long bow/ruin tome)
+
     def findMaxRange(self):
         maxRange = 0
         itemPos = 0
         for items in self.inventory:
-            if(items[0])
+            return maxRange
         return maxRange
 
     def updateUnit(self, unitData):
