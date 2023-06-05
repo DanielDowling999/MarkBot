@@ -361,7 +361,10 @@ def main():
     unitList = getUnitData(unitData)
     for units in unitList:
         print(units.name)
-        print(units.fullInv)
+        # print(units.fullInv)
+        print(units.maxRange)
+        print(units.minRange)
+
     # print(unitList[0].inventory)
     # print(unitList[0].fullInv)
     # enemyData = sockettest.main(commandList[1])

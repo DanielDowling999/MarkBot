@@ -88,6 +88,7 @@ class Unit:
         self.trueCon = int(self.classCon) + int(self.conBonus)
         self.name = Unit.nameList.get(self.nameId, "E")[0]
         self.fullInv = Unit.fillInventory(self, invData)
+        self.maxRange, self.minRange = Unit.findRanges(self)
         # self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
@@ -116,18 +117,23 @@ class Unit:
 # Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
 # or not they can use it, then just pull the longest range one when calcing range.
 
-
     def fillInventory(self, invData):
         fullInv = []
+        itemPos = 0
         for item in invData:
             canUse = False
             currItem = []
             if (item[0] == 0):
+                itemPos += 1
                 continue
             isItem = Unit.itemList.get(hex(item[0]), False)
             if isItem:
                 currItem = [isItem, item[1]]
+                currItem.append(itemPos)
+                currItem.append("ITEM")
                 fullInv.append(currItem)
+                itemPos += 1
+
                 continue
             physWeapon = Unit.physWeaponList.get(hex(item[0]), False)
             if physWeapon:
@@ -141,7 +147,9 @@ class Unit:
                     canUse = True
                 # print(physWeapon)
                 currItem.append(canUse)
+                currItem.append(itemPos)
                 fullInv.append(currItem)
+                itemPos += 1
                 # print(Unit.physWeaponList.get("0x1"))
                 continue
             magWeapon = Unit.magWeaponList.get(hex(item[0]), False)
@@ -152,26 +160,33 @@ class Unit:
                 if self.weaponRanks[magWeaponType] >= Unit.minWeaponRanksList.get(magWeaponRank):
                     canUse = True
                 currItem.append(canUse)
+                currItem.append(itemPos)
                 fullInv.append(currItem)
+                itemPos += 1
                 continue
             print("Invalid item")
+            itemPos += 1
 
         return fullInv
 
-    def findMaxRange(self):
+    def findRanges(self):
 
         maxRange = 0
-        itemPos = 0
-        for item in self.inventory:
-            physWeapon = Unit.physWeaponList.get(item[0], False)
-            if physWeapon:
-                physWeaponType = Unit.weaponRanksList.get(physWeapon[1])
-                physWeaponRank = physWeapon[2]
-                if self.weaponRanks[physWeaponType] >= Unit.minWeaponRanksList.get(physWeaponRank):
-                    if (maxRange < physWeapon[7]):
-                        maxRange = physWeapon[7]
-
-        return maxRange
+        minRange = 30
+        # itemPos = 0
+        for item in self.fullInv:
+            # if it's not a weapon, go to the next item slot
+            if item[3] == "ITEM":
+                continue
+            # if item is usable by unit
+            if item[2]:
+                tempRange = int(item[0][7])
+                if tempRange < minRange:
+                    minRange = tempRange
+                if tempRange > maxRange:
+                    maxRange = tempRange
+        # if minRange = 30 it means the unit has no usable weapons
+        return maxRange, minRange
 
     # Check if unit can use weapon type
     # Check if unit has a high enough weapon rank
