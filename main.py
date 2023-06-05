@@ -5,6 +5,7 @@ import sockettest
 from unit import Unit
 import csv
 import numpy
+import copy
 # Moving the mouse onto the emulator and testing extremely basic movement options.
 itemList = []
 physWeaponList = []
@@ -236,6 +237,81 @@ def createMoveMap(mapData, unitList, enemyList):
 
 # Don't think I would actually use belowv for anything.
 
+# Doesn't work the way I want
+
+
+def findUnitAttacks(unitMoveMap, simpleMapList, enemyList, unit):
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    enemyMapList = []
+    for enemy in enemyList:
+        enemyMap = numpy.zeros((mapY, mapX))
+        enemyMap[enemy.ypos][enemy.xpos] = -1
+        for i in range(1, 11):
+            if enemy.ypos+i < mapY:
+                if enemy.xpos+i < mapX:
+                    enemyMap[enemy.ypos+i][enemy.xpos+i] = i
+                if enemy.xpos-i >= 0:
+                    enemyMap[enemy.ypos+i][enemy.xpos-i] = i
+                enemyMap[enemy.ypos+i][enemy.xpos] = i
+            if enemy.ypos-i >= 0:
+                if enemy.xpos - i >= 0:
+                    enemyMap[enemy.ypos-i][enemy.xpos-i] = i
+                if enemy.xpos + i < mapX:
+                    enemyMap[enemy.ypos-i][enemy.xpos+i] = i
+                enemyMap[enemy.ypos-i][enemy.xpos] = i
+            if enemy.xpos-i >= 0:
+                enemyMap[enemy.ypos][enemy.xpos-i] = i
+            if enemy.xpos+i < mapX:
+                enemyMap[enemy.ypos][enemy.xpos+i] = i
+        enemyMapList.append(enemyMap)
+        print("New Enemy")
+        print(enemyMap)
+
+    return enemyMapList
+
+# take the unitMoveMap, and the list of enemies. Find all squares where the moveMap can reach + range and where they can be attacked from.
+
+# I think I just need to rethink my whole approach to this. most likely by redoing the flood fill to include the unit's attack range
+
+
+def newApproachAttacks(unit, enemyList, unitMapList):
+    attackableEnemies = []
+    for enemy in enemyList:
+        enemyDistance = abs(enemy.xpos-unit.xpos) + abs(enemy.ypos-unit.ypos)
+        if enemyDistance > unit.move+unit.maxRange:
+            continue
+        attackableEnemies.append()
+    return attackableEnemies
+
+
+"""def findAllAttacks(unitMoveMap, simpleMapList, enemyList, unit):
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    # enemyMap = copy.deepcopy(unitMoveMap)
+    # enemyMap = unitMoveMap
+    enemyMap = numpy.zeros(mapY, mapX)
+    for enemy in enemyList:
+        enemyAttackedFrom = []
+        xAttack = enemy.xpos-unit.minRange
+        if (xAttack > 0):
+            if unitMoveMap[enemy.ypos][xAttack] >= 0:
+                enemyAttackedFrom.append([enemy.ypos, xAttack])
+        xAttack = enemy.xpos-unit.maxRange
+        if xAttack > 0:
+            enemyAttackedFrom.append([enemy.ypos, xAttack])
+        xAttack = enemy.xpos+unit.minRange
+        if (xAttack < mapX and xAttack > 0):
+            enemyAttackedFrom.append([enemy.ypos, xAttack])
+        xAttack = enemy.xpos+unit.maxRange
+        if(xAttack < mapX and xAttack > 0):
+
+        if unitMoveMap[enemy.ypos][enemy.xpos-unit.maxRange] >= 0:
+            enemyAttackedFrom.append(enemy.ypos, enemy.xpos-unit.minRange)
+
+        enemyMap[enemy.ypos][enemy.xpos] = -8
+"""
+
 
 def unitAndDestructibleMap(moveMapList):
     mapX = moveMapList[0].length
@@ -266,7 +342,6 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList):
         simpleMapList[enemy.ypos][enemy.xpos] = 0x9D
     #    unitMoveMap[enemy.ypos][enemy.xpos] = -8
     unitMoveMap[unitY][unitX] = unitMove
-
     unitMoveMap = realFloodFill(
         unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMapList, unitMoveType)
     return unitMoveMap
@@ -359,33 +434,34 @@ def main():
 
     unitData = sockettest.main(commandList[0])
     unitList = getUnitData(unitData)
-    for units in unitList:
-        print(units.name)
-        # print(units.fullInv)
-        print(units.maxRange)
-        print(units.minRange)
+    # for units in unitList:
+    #    print(units.name)
+    # print(units.fullInv)
+    #    print(units.maxRange)
+    #    print(units.minRange)
 
     # print(unitList[0].inventory)
     # print(unitList[0].fullInv)
-    # enemyData = sockettest.main(commandList[1])
-    # enemyList = getEnemyData(enemyData)
+    enemyData = sockettest.main(commandList[1])
+    enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
-    # mapData = sockettest.main(commandList[4])
-    # mapList = list(mapData)
+    mapData = sockettest.main(commandList[4])
+    mapList = list(mapData)
     # print(mapList)
     # print("Base map data is:")
     # print(mapList)
-    # simpleMapList = createMoveMap(mapData, unitList, enemyList)
+    simpleMapList = createMoveMap(mapData, unitList, enemyList)
 
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
-    # unitMoveList = []
-    # allMoveList = []
-    # for units in unitList:
-    #    print(units.name + "'s possible moves")
-    #    unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
-    #    print(unitMoveList)
+    unitMoveList = []
+    allMoveList = []
+    for units in unitList:
+        print(units.name + "'s possible moves")
+        unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
+        print(unitMoveList)
+    findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
 
     # unitBestMove, bestX, bestY = findBestMove(
     #    simpleMapList, unitMoveList, units, unitList, enemyList)
