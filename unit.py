@@ -24,14 +24,14 @@ class Unit:
     classList = openClassFile("Data/class.txt")
     nameList = openClassFile("Data/units.txt")
     # itemList = openClassFile("Data/items.txt")
-    itemList = openItemFile("Data/items.txt")
-    physWeaponList = openItemFile("Data/physWeapons.txt")
-    magWeaponList = openItemFile("Data/magWeapons.txt")
+    itemList = openClassFile("Data/items.txt")
+    physWeaponList = openClassFile("Data/physWeapons.txt")
+    magWeaponList = openClassFile("Data/magWeapons.txt")
     staveList = openItemFile("Data/staves.txt")
-    weaponRanksList = {"Sword": 0, "Lance": 1, "Axe": 2,
-                       "Bow": 3, "Staff": 4, "Anima": 5, "Light": 6, "Dark": 7}
-    minWeaponRanksList = {"-": 0x00, "E": 0x01, "D": 0x1F,
-                          "C": 0x47, "B": 0x79, "A": 0xB5, "S": 0xFB}
+    weaponRanksList = {"sword": 0, "lance": 1, "axe": 2,
+                       "bow": 3, "staff": 4, "anima": 5, "light": 6, "dark": 7}
+    minWeaponRanksList = {"-": 0x00, "e": 0x01, "d": 0x1F,
+                          "c": 0x47, "b": 0x79, "a": 0xB5, "s": 0xFB}
     # order is Sword, Lance, Axe, Bow, Staff, Anima, Light, Dark}
 
     def __init__(self, unitData):
@@ -61,8 +61,10 @@ class Unit:
         self.isRescued = unitData[27]
         # 28 seems to be useless, and 29 is assumed to be the movebonus until I can test properly
         self.movBonus = unitData[29]
-        self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
+        invData = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
             unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
+        # self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
+        #    unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
         self.hasMoved = False
 
         # 00 - weapon disabled
@@ -85,7 +87,8 @@ class Unit:
         self.trueMove = int(self.classMove) + int(self.movBonus)
         self.trueCon = int(self.classCon) + int(self.conBonus)
         self.name = Unit.nameList.get(self.nameId, "E")[0]
-        self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
+        self.fullInv = Unit.fillInventory(self, invData)
+        # self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
         # self.classCon = self.getClassCon()
@@ -112,6 +115,48 @@ class Unit:
 
 # Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
 # or not they can use it, then just pull the longest range one when calcing range.
+
+
+    def fillInventory(self, invData):
+        fullInv = []
+        for item in invData:
+            canUse = False
+            currItem = []
+            if (item[0] == 0):
+                continue
+            isItem = Unit.itemList.get(hex(item[0]), False)
+            if isItem:
+                currItem = [isItem, item[1]]
+                fullInv.append(currItem)
+                continue
+            physWeapon = Unit.physWeaponList.get(hex(item[0]), False)
+            if physWeapon:
+                physWeaponType = Unit.weaponRanksList.get(physWeapon[1])
+                physWeaponRank = physWeapon[2]
+                currItem = [physWeapon, item[1]]
+                if physWeaponRank == "prfl":
+                    if (self.className == "lord (lyn)"):
+                        canUse = True
+                elif self.weaponRanks[physWeaponType] >= Unit.minWeaponRanksList.get(physWeaponRank):
+                    canUse = True
+                # print(physWeapon)
+                currItem.append(canUse)
+                fullInv.append(currItem)
+                # print(Unit.physWeaponList.get("0x1"))
+                continue
+            magWeapon = Unit.magWeaponList.get(hex(item[0]), False)
+            if magWeapon:
+                magWeaponType = Unit.weaponRanksList.get(magWeapon[1])
+                magWeaponRank = magWeapon[2]
+                currItem = [magWeapon, item[1]]
+                if self.weaponRanks[magWeaponType] >= Unit.minWeaponRanksList.get(magWeaponRank):
+                    canUse = True
+                currItem.append(canUse)
+                fullInv.append(currItem)
+                continue
+            print("Invalid item")
+
+        return fullInv
 
     def findMaxRange(self):
 
@@ -154,8 +199,8 @@ class Unit:
         # 28 seems to be useless, and 29 is assumed to be the movebonus until I can test properly
         self.movBonus = unitData[29]
 
-        self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
-            unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
+        # self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
+        #    unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
         # 00 - weapon disabled
         # 01 through 1E - Skill level E
         # 1F through 46 - Skill level D

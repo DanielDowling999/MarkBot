@@ -314,7 +314,7 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, enemyList):
     # the default best move is to not move at all.
     bestMoveX = unit.xpos
     bestMoveY = unit.ypos
-    enemiesInRange = enemyInRange(unitMoveList, enemyList)
+    enemiesInRange = enemyInRange(unitMoveList, enemyList, unit.maxRange)
     print(enemiesInRange)
     bestMoveAction = "nothing"
 
@@ -359,28 +359,33 @@ def main():
 
     unitData = sockettest.main(commandList[0])
     unitList = getUnitData(unitData)
-    enemyData = sockettest.main(commandList[1])
-    enemyList = getEnemyData(enemyData)
+    for units in unitList:
+        print(units.name)
+        print(units.fullInv)
+    # print(unitList[0].inventory)
+    # print(unitList[0].fullInv)
+    # enemyData = sockettest.main(commandList[1])
+    # enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
-    mapData = sockettest.main(commandList[4])
-    mapList = list(mapData)
+    # mapData = sockettest.main(commandList[4])
+    # mapList = list(mapData)
     # print(mapList)
     # print("Base map data is:")
     # print(mapList)
-    simpleMapList = createMoveMap(mapData, unitList, enemyList)
+    # simpleMapList = createMoveMap(mapData, unitList, enemyList)
 
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
-    unitMoveList = []
+    # unitMoveList = []
     # allMoveList = []
-    for units in unitList:
-        print(units.name + "'s possible moves")
-        unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
-        print(unitMoveList)
+    # for units in unitList:
+    #    print(units.name + "'s possible moves")
+    #    unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
+    #    print(unitMoveList)
 
-        unitBestMove, bestX, bestY = findBestMove(
-            simpleMapList, unitMoveList, units, unitList, enemyList)
+    # unitBestMove, bestX, bestY = findBestMove(
+    #    simpleMapList, unitMoveList, units, unitList, enemyList)
 
     # unitMoveX, unitMoveY = findGoodMoves(
     #    moveMapList, unitList[0], unitList, enemyList)
