@@ -88,7 +88,8 @@ class Unit:
         self.trueCon = int(self.classCon) + int(self.conBonus)
         self.name = Unit.nameList.get(self.nameId, "E")[0]
         self.fullInv = Unit.fillInventory(self, invData)
-        self.maxRange, self.minRange = Unit.findRanges(self)
+        self.maxRange, self.minRange = Unit.findMinMaxRanges(self)
+        self.ranges = Unit.findRanges(self)
         # self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
@@ -116,6 +117,7 @@ class Unit:
 
 # Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
 # or not they can use it, then just pull the longest range one when calcing range.
+
 
     def fillInventory(self, invData):
         fullInv = []
@@ -169,7 +171,23 @@ class Unit:
 
         return fullInv
 
+# should adjust this (and the actual data) to have the min and max range of a weapon built into it, to account for 1-2 range weapons and siege weapons
     def findRanges(self):
+        ranges = []
+        for item in self.fullInv:
+            if item[3] == "ITEM":
+                continue
+            if item[2]:
+                tempRange = int(item[0][7])
+                if tempRange in ranges:
+                    continue
+                ranges.append(tempRange)
+
+        if not ranges:
+            ranges.append(0)
+        return ranges
+
+    def findMinMaxRanges(self):
 
         maxRange = 0
         minRange = 30

@@ -313,6 +313,65 @@ def newApproachAttacks(unit, enemyList, unitMapList):
 """
 
 
+def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList):
+    if unit.ranges[0] == 0:
+        return []
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    attackableEnemiesList = []
+    for enemy in enemyList:
+        enemyAttackableFrom = []
+        enemyX = enemy.xpos
+        enemyY = enemy.ypos
+        # all ranges will need to check the cardinal directions, so this one is done for all
+        for ranges in unit.ranges:
+            if enemyX - ranges >= 0:
+                if moveMapList[enemyY][enemyX-ranges] >= 0:
+                    enemyAttackableFrom.append([enemyY, enemyX-ranges])
+            if enemyY - ranges >= 0:
+                if moveMapList[enemyY-ranges][enemyX] >= 0:
+                    enemyAttackableFrom.append([enemyY-ranges, enemyX])
+            if enemyX+ranges < mapX:
+                if moveMapList[enemyY][enemyX+ranges] >= 0:
+                    enemyAttackableFrom.append([enemyY, enemyX+ranges])
+            if enemyY+ranges < mapY:
+                if moveMapList[enemyY+ranges][enemyX] >= 0:
+                    enemyAttackableFrom.append([enemyY+ranges, enemyX])
+            # Until i can figure out a systematic approach, will have to hard code each range
+            if ranges == 2:
+                xMinus = int(enemyX-(ranges/2))
+                xPlus = int(enemyX+(ranges/2))
+                yMinus = int(enemyY-(ranges/2))
+                yPlus = int(enemyY+(ranges/2))
+                if xMinus >= 0:
+                    if yMinus >= 0:
+                        if moveMapList[yMinus][xMinus] >= 0:
+                            enemyAttackableFrom.append([yMinus, xMinus])
+                    if yPlus < mapY:
+
+                        if moveMapList[yPlus][xMinus] >= 0:
+                            enemyAttackableFrom.append([yPlus, xMinus])
+                if xPlus < mapX:
+                    if yMinus >= 0:
+                        if moveMapList[yMinus][xPlus] >= 0:
+                            enemyAttackableFrom.append(
+                                [yMinus, xPlus])
+                    if yPlus < mapY:
+                        if moveMapList[yPlus][xPlus] >= 0:
+                            enemyAttackableFrom.append(
+                                [yPlus, xPlus])
+        if enemyAttackableFrom:
+            attackableEnemiesList.append([enemy, enemyAttackableFrom])
+    return attackableEnemiesList
+
+
+def checkIfEnemy(enemyList, i, j):
+    for enemy in enemyList:
+        if enemy.ypos == i and enemy.xpos == j:
+            return True
+    return False
+
+
 def unitAndDestructibleMap(moveMapList):
     mapX = moveMapList[0].length
     mapY = moveMapList.length
@@ -352,12 +411,17 @@ def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
     # print(moveMapList[y][x])
     if (x < 0 or x >= len(moveMapList[0]) or y < 0 or y >= len(moveMapList)):
         return
-    if not passableTerrain(moveMapList[y][x], unitMoveType):
+    if not passableTerrain(moveMapList[y][x], unitMoveType) and not (unitMove == unitMoveMap[y][x]):
         return
     tileData = terrainDictionary.get(moveMapList[y][x])
     # print(tileData)
 
     movePenalty = tileData[4+unitMoveType]
+    """if (movePenalty == '-' and unitMoveMap[y][x] == unitMove):
+        movePenalty == 0"""
+    if movePenalty == "-":
+        movePenalty = 1
+
     tempMove = int(prev) - int(movePenalty)
 
     if (unitMoveMap[y][x] == tempMove or tempMove < 0 or (unitMoveMap[y][x] > tempMove and unitMoveMap[y][x] != unitMove)):
@@ -461,7 +525,13 @@ def main():
         print(units.name + "'s possible moves")
         unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
         print(unitMoveList)
-    findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
+        print("Unit ranges: ")
+        print(units.ranges)
+        attackableEnemies = findAttackableEnemies(
+            unitMoveList, simpleMapList, units, unitList, enemyList)
+        print("Enemies they can attack are: ")
+        print(attackableEnemies)
+    # findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
 
     # unitBestMove, bestX, bestY = findBestMove(
     #    simpleMapList, unitMoveList, units, unitList, enemyList)
