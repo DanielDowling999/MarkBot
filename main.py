@@ -239,6 +239,8 @@ def createMoveMap(mapData, unitList, enemyList):
 
 # Doesn't work the way I want
 
+# don't think I use for anything
+
 
 def findUnitAttacks(unitMoveMap, simpleMapList, enemyList, unit):
     mapX = len(simpleMapList[0])
@@ -270,48 +272,6 @@ def findUnitAttacks(unitMoveMap, simpleMapList, enemyList, unit):
 
     return enemyMapList
 
-# take the unitMoveMap, and the list of enemies. Find all squares where the moveMap can reach + range and where they can be attacked from.
-
-# I think I just need to rethink my whole approach to this. most likely by redoing the flood fill to include the unit's attack range
-
-
-def newApproachAttacks(unit, enemyList, unitMapList):
-    attackableEnemies = []
-    for enemy in enemyList:
-        enemyDistance = abs(enemy.xpos-unit.xpos) + abs(enemy.ypos-unit.ypos)
-        if enemyDistance > unit.move+unit.maxRange:
-            continue
-        attackableEnemies.append()
-    return attackableEnemies
-
-
-"""def findAllAttacks(unitMoveMap, simpleMapList, enemyList, unit):
-    mapX = len(simpleMapList[0])
-    mapY = len(simpleMapList)
-    # enemyMap = copy.deepcopy(unitMoveMap)
-    # enemyMap = unitMoveMap
-    enemyMap = numpy.zeros(mapY, mapX)
-    for enemy in enemyList:
-        enemyAttackedFrom = []
-        xAttack = enemy.xpos-unit.minRange
-        if (xAttack > 0):
-            if unitMoveMap[enemy.ypos][xAttack] >= 0:
-                enemyAttackedFrom.append([enemy.ypos, xAttack])
-        xAttack = enemy.xpos-unit.maxRange
-        if xAttack > 0:
-            enemyAttackedFrom.append([enemy.ypos, xAttack])
-        xAttack = enemy.xpos+unit.minRange
-        if (xAttack < mapX and xAttack > 0):
-            enemyAttackedFrom.append([enemy.ypos, xAttack])
-        xAttack = enemy.xpos+unit.maxRange
-        if(xAttack < mapX and xAttack > 0):
-
-        if unitMoveMap[enemy.ypos][enemy.xpos-unit.maxRange] >= 0:
-            enemyAttackedFrom.append(enemy.ypos, enemy.xpos-unit.minRange)
-
-        enemyMap[enemy.ypos][enemy.xpos] = -8
-"""
-
 
 def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList):
     if unit.ranges[0] == 0:
@@ -327,16 +287,16 @@ def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList)
         for ranges in unit.ranges:
             if enemyX - ranges >= 0:
                 if moveMapList[enemyY][enemyX-ranges] >= 0:
-                    enemyAttackableFrom.append([enemyY, enemyX-ranges])
+                    enemyAttackableFrom.append([enemyY, enemyX-ranges, ranges])
             if enemyY - ranges >= 0:
                 if moveMapList[enemyY-ranges][enemyX] >= 0:
-                    enemyAttackableFrom.append([enemyY-ranges, enemyX])
+                    enemyAttackableFrom.append([enemyY-ranges, enemyX, ranges])
             if enemyX+ranges < mapX:
                 if moveMapList[enemyY][enemyX+ranges] >= 0:
-                    enemyAttackableFrom.append([enemyY, enemyX+ranges])
+                    enemyAttackableFrom.append([enemyY, enemyX+ranges, ranges])
             if enemyY+ranges < mapY:
                 if moveMapList[enemyY+ranges][enemyX] >= 0:
-                    enemyAttackableFrom.append([enemyY+ranges, enemyX])
+                    enemyAttackableFrom.append([enemyY+ranges, enemyX, ranges])
             # Until i can figure out a systematic approach, will have to hard code each range
             if ranges == 2:
                 xMinus = int(enemyX-(ranges/2))
@@ -346,20 +306,21 @@ def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList)
                 if xMinus >= 0:
                     if yMinus >= 0:
                         if moveMapList[yMinus][xMinus] >= 0:
-                            enemyAttackableFrom.append([yMinus, xMinus])
+                            enemyAttackableFrom.append(
+                                [yMinus, xMinus, ranges])
                     if yPlus < mapY:
 
                         if moveMapList[yPlus][xMinus] >= 0:
-                            enemyAttackableFrom.append([yPlus, xMinus])
+                            enemyAttackableFrom.append([yPlus, xMinus, ranges])
                 if xPlus < mapX:
                     if yMinus >= 0:
                         if moveMapList[yMinus][xPlus] >= 0:
                             enemyAttackableFrom.append(
-                                [yMinus, xPlus])
+                                [yMinus, xPlus, ranges])
                     if yPlus < mapY:
                         if moveMapList[yPlus][xPlus] >= 0:
                             enemyAttackableFrom.append(
-                                [yPlus, xPlus])
+                                [yPlus, xPlus, ranges])
         if enemyAttackableFrom:
             attackableEnemiesList.append([enemy, enemyAttackableFrom])
     return attackableEnemiesList
@@ -417,8 +378,7 @@ def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
     # print(tileData)
 
     movePenalty = tileData[4+unitMoveType]
-    """if (movePenalty == '-' and unitMoveMap[y][x] == unitMove):
-        movePenalty == 0"""
+    # This is exclusively for when starting on a tile that is impassable (i.e a closed village, or broken bridge)
     if movePenalty == "-":
         movePenalty = 1
 
@@ -446,16 +406,87 @@ def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
     return unitMoveMap
 
 
-def findBestMove(simpleMapList, unitMoveList, unit, unitList, enemyList):
-    if (unit.currHP < unit.maxHP/2):
-        bestMoveAction = "heal"
+def calculateAttackRating(unit, weapon, enemy, attackRange):
+    print("Entered attack rating function")
+    attackRating = 0
+    enemyHp = enemy.currHP
+    unitHp = unit.currHP
+    enemyCanAttackBack = False
+    enemyWeapon = enemy.fullInv[0]
+    unitDouble = False
+    enemyDouble = False
 
+    # do basic attack calculation first
+    if weapon[0][7] == enemyWeapon[0][7]:
+        enemyCanAttackBack = True
+
+    unitAttack = int(weapon[0][3]) + unit.strength
+
+    damage = unitAttack - enemy.defense
+    weaponSlowdown = int(weapon[0][4]) - unit.trueCon
+    if weaponSlowdown < 0:
+        weaponSlowdown = 0
+    attackSpeed = unit.speed - weaponSlowdown
+    if attackSpeed < 0:
+        attackSpeed = 0
+
+    enemyWeaponSlowdown = int(enemyWeapon[0][4]) - enemy.trueCon
+    if enemyWeaponSlowdown < 0:
+        enemyWeaponSlowdown = 0
+    enemyAS = enemy.speed - enemyWeaponSlowdown
+    if enemyAS < 0:
+        enemyAS = 0
+    if attackSpeed >= enemyAS + 4:
+        unitDouble = True
+    elif enemyAS >= attackSpeed + 4:
+        enemyDouble = True
+
+    hpDamage = enemyHp - damage
+
+    # enemyHp = enemyHp - damage
+    if enemyCanAttackBack:
+        enemyAttack = int(enemyWeapon[0][3]) + enemy.strength
+        enemyDamage = enemyAttack - unit.defense
+        enemyHpDamage = unitHp - enemyDamage
+    else:
+        enemyDamage = 0
+        enemyHpDamage = 0
+    if unitDouble:
+        hpDamage = hpDamage - damage
+    elif enemyDouble and enemyCanAttackBack:
+        enemyHpDamage = enemyHpDamage - enemyDamage
+    print(hpDamage)
+    print(enemyHpDamage)
+    # BAD CALCULATION, BUT THIS ALL WORKS
+    # attackRating = hpDamage-enemyHpDamage
+    attackRating = (float(damage)/enemyHp - float(enemyDamage)/unitHp)*100
+    return attackRating
+
+
+def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies):
     # the default best move is to not move at all.
     bestMoveX = unit.xpos
     bestMoveY = unit.ypos
-    enemiesInRange = enemyInRange(unitMoveList, enemyList, unit.maxRange)
-    print(enemiesInRange)
-    bestMoveAction = "nothing"
+    bestMoveAction = ""
+    if (unit.currHP < unit.maxHP/2):
+        bestMoveAction = "heal"
+
+    # enemiesInRange = enemyInRange(unitMoveList, enemyList, unit.maxRange)
+    # print(enemiesInRange)
+    # bestMoveAction = "nothing"
+
+    for enemyAttack in attackableEnemies:
+        attackRange = enemyAttack[1][0][2]
+        for item in unit.fullInv:
+            if not item[3] == "ITEM":
+                for attacks in enemyAttack[1]:
+                    # print("range is: " + str(attacks[2]))
+                    # print("current weapon range is: " + str(item[0][7]))
+                    if attacks[2] == int(item[0][7]):
+                        # print("reached here")
+                        attackRating = calculateAttackRating(
+                            unit, item, enemyAttack[0], attacks[2])
+                        print(enemyAttack[0], attackRating)
 
     return bestMoveX, bestMoveY, bestMoveAction
 
@@ -531,6 +562,8 @@ def main():
             unitMoveList, simpleMapList, units, unitList, enemyList)
         print("Enemies they can attack are: ")
         print(attackableEnemies)
+        findBestMove(simpleMapList, unitMoveList,
+                     units, unitList, attackableEnemies)
     # findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
 
     # unitBestMove, bestX, bestY = findBestMove(

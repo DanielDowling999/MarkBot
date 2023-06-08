@@ -49,14 +49,14 @@ class Unit:
         self.status = unitData[12:16]
         self.xpos = unitData[16]
         self.ypos = unitData[17]
-        self.maxHP = unitData[18]
-        self.currHP = unitData[19]
-        self.strength = unitData[20]
-        self.skill = unitData[21]
-        self.speed = unitData[22]
-        self.defense = unitData[23]
-        self.res = unitData[24]
-        self.luck = unitData[25]
+        self.maxHP = int(unitData[18])
+        self.currHP = int(unitData[19])
+        self.strength = int(unitData[20])
+        self.skill = int(unitData[21])
+        self.speed = int(unitData[22])
+        self.defense = int(unitData[23])
+        self.res = int(unitData[24])
+        self.luck = int(unitData[25])
         self.conBonus = unitData[26]
         self.isRescued = unitData[27]
         # 28 seems to be useless, and 29 is assumed to be the movebonus until I can test properly
