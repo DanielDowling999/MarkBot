@@ -415,6 +415,7 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
     enemyWeapon = enemy.fullInv[0]
     unitDouble = False
     enemyDouble = False
+    triangleAdvantage = 0
 
     # do basic attack calculation first
     if weapon[0][7] == enemyWeapon[0][7]:
@@ -422,7 +423,12 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
 
     unitAttack = int(weapon[0][3]) + unit.strength
 
-    damage = unitAttack - enemy.defense
+    if (weapon[0][1] == "sword" and enemyWeapon[0][1] == "axe") or (weapon[0][1] == "axe" and enemyWeapon[0][1] == "lance") or (weapon[0][1] == "lance" and enemyWeapon[0][1] == "sword"):
+        triangleAdvantage = 1
+    elif (weapon[0][1] == "sword" and enemyWeapon[0][1] == "lance") or (weapon[0][1] == "axe" and enemyWeapon[0][1] == "sword") or (weapon[0][1] == "lance" and enemyWeapon[0][1] == "axe"):
+        triangleAdvantage = -1
+
+    damage = unitAttack + triangleAdvantage - enemy.defense
     weaponSlowdown = int(weapon[0][4]) - unit.trueCon
     if weaponSlowdown < 0:
         weaponSlowdown = 0
@@ -446,7 +452,8 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
     # enemyHp = enemyHp - damage
     if enemyCanAttackBack:
         enemyAttack = int(enemyWeapon[0][3]) + enemy.strength
-        enemyDamage = enemyAttack - unit.defense
+        # minus triangleAdvantage because we're looking at it from the reverse. So if player wins it, we minus it, and if player loses, we add
+        enemyDamage = enemyAttack - triangleAdvantage - unit.defense
         enemyHpDamage = unitHp - enemyDamage
     else:
         enemyDamage = 0
@@ -457,8 +464,7 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
         enemyHpDamage = enemyHpDamage - enemyDamage
     print(hpDamage)
     print(enemyHpDamage)
-    # BAD CALCULATION, BUT THIS ALL WORKS
-    # attackRating = hpDamage-enemyHpDamage
+    # BAD CALCULATION, BUT THIS ALL WORKS NEEDS HIT CALC BARE MINIMUM, AND TERRAIN STATS
     attackRating = (float(damage)/enemyHp - float(enemyDamage)/unitHp)*100
     return attackRating
 
