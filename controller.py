@@ -4,11 +4,11 @@ import time
 # Set of useful button press functions, for use if I choose to use pyautogui to let the bot control the game.
 
 
-def press_button(button, n_times=1):
+def press_button(button, n_times=1, delay=0.2):
     for num in range(n_times):
         pyautogui.keyDown(button)
         pyautogui.keyUp(button)
-        time.sleep(0.1)
+        time.sleep(delay)
 
 
 def press_up(n_times=1):
@@ -64,11 +64,19 @@ def next_unit():
 
 def attack():
     press_a(3)
+    time.sleep(10)
 
 # end move function. pressing up at the start of menuing will always bring you to the bottom of
 # the menu provided no inputs get eaten
 
 
 def end_move():
+    press_up()
+    press_a()
+
+
+def end_turn():
+    press_up()
+    press_a()
     press_up()
     press_a()

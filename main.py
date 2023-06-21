@@ -474,12 +474,17 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies)
     bestMoveX = unit.xpos
     bestMoveY = unit.ypos
     bestMoveAction = ""
+    itemPos = 0
     if (unit.currHP < unit.maxHP/2):
         bestMoveAction = "heal"
 
     # enemiesInRange = enemyInRange(unitMoveList, enemyList, unit.maxRange)
     # print(enemiesInRange)
     # bestMoveAction = "nothing"
+    bestMove = [0]
+    if not attackableEnemies:
+        print("entered here")
+        return [0, [bestMoveY, bestMoveX]]
 
     for enemyAttack in attackableEnemies:
         attackRange = enemyAttack[1][0][2]
@@ -492,9 +497,13 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies)
                         # print("reached here")
                         attackRating = calculateAttackRating(
                             unit, item, enemyAttack[0], attacks[2])
-                        print(enemyAttack[0], attackRating)
+                        # print(enemyAttack[0], attackRating)
+                        if attackRating > bestMove[0]:
+                            bestMove = [attackRating, attacks, item, itemPos]
+                            print(bestMove)
+            itemPos += 1
 
-    return bestMoveX, bestMoveY, bestMoveAction
+    return bestMove
 
 
 def passableTerrain(tile, unitMoveType):
@@ -510,6 +519,46 @@ def passableTerrain(tile, unitMoveType):
     return True
 
 
+def doMove(unit, bestMove):
+    unitX = unit.xpos
+    unitY = unit.ypos
+    bestMoveX = bestMove[1][1]
+    bestMoveY = bestMove[1][0]
+    itemPos = bestMove[3]
+    currItemPos = 0
+    print(bestMoveX)
+    print(bestMoveY)
+    while not (unitX == bestMoveX):
+        if unitX > bestMoveX:
+            controller.press_left()
+            unitX = unitX - 1
+            print("moving")
+        elif unitX < bestMoveX:
+            controller.press_right()
+            unitX = unitX + 1
+            print("moving")
+    while not (unitY == bestMoveY):
+        if (unitY > bestMoveY):
+            controller.press_up()
+            unitY = unitY - 1
+            print("moving")
+        elif unitY < bestMoveY:
+            controller.press_down()
+            unitY = unitY + 1
+            print("moving")
+    print("attacking")
+    controller.press_a()
+    time.sleep(1)
+    controller.press_a()
+    while not (itemPos == currItemPos):
+        controller.press_down()
+        currItemPos += 1
+    controller.attack()
+
+    time.sleep(5)
+    return
+
+
 def main():
     global commandList
     global terrainDictionary
@@ -521,8 +570,8 @@ def main():
     # print("Magic Weapons: " + str(magWeaponList))
     # print("Staves: " + str(staffList))
 
-    # pyautogui.moveTo(7, 80, 0.2)
-    # pyautogui.click()
+    pyautogui.moveTo(7, 80, 0.2)
+    pyautogui.click()
 
     # mapsize = list(sockettest.main(commandList[3]))
 
@@ -558,6 +607,7 @@ def main():
     # print(unitList[0].classMoveId)
     unitMoveList = []
     allMoveList = []
+    controller.press_a()
     for units in unitList:
         print(units.name + "'s possible moves")
         unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
@@ -568,8 +618,17 @@ def main():
             unitMoveList, simpleMapList, units, unitList, enemyList)
         print("Enemies they can attack are: ")
         print(attackableEnemies)
-        findBestMove(simpleMapList, unitMoveList,
-                     units, unitList, attackableEnemies)
+        bestMove = findBestMove(simpleMapList, unitMoveList,
+                                units, unitList, attackableEnemies)
+        print(bestMove[0])
+        if not (bestMove[0] == 0):
+            print("trying to do a move")
+            doMove(units, bestMove)
+        else:
+            controller.press_a()
+            controller.end_move()
+        controller.next_unit()
+    controller.end_turn()
     # findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
 
     # unitBestMove, bestX, bestY = findBestMove(
