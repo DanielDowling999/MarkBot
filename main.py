@@ -6,6 +6,7 @@ from unit import Unit
 import csv
 import numpy
 import copy
+import movement
 # Moving the mouse onto the emulator and testing extremely basic movement options.
 itemList = []
 physWeaponList = []
@@ -347,6 +348,7 @@ def unitAndDestructibleMap(moveMapList):
 
 def findAllMoves(simpleMapList, unit, unitList, enemyList):
     # unit list will be used for rescue, dancing, healing and grouping up
+    simpleMap = copy.deepcopy(simpleMapList)
     unitX = unit.xpos
     unitY = unit.ypos
     unitMove = unit.trueMove
@@ -359,11 +361,32 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList):
             unitMoveMap[j][i] = -9
 
     for enemy in enemyList:
-        simpleMapList[enemy.ypos][enemy.xpos] = 0x9D
+        simpleMap[enemy.ypos][enemy.xpos] = 0x9D
     #    unitMoveMap[enemy.ypos][enemy.xpos] = -8
     unitMoveMap[unitY][unitX] = unitMove
     unitMoveMap = realFloodFill(
-        unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMapList, unitMoveType)
+        unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMap, unitMoveType)
+    return unitMoveMap
+
+
+def findFullMapMove(simpleMapList, unit, unitList):
+    unitX = unit.xpos
+    unitY = unit.ypos
+    unitMove = unit.trueMove
+    unitMoveType = unit.classMoveId
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    unitMoveMap = numpy.zeros((mapY, mapX))
+    for i in range(mapX):
+        for j in range(mapY):
+            unitMoveMap[j][i] = -9
+
+   # for enemy in enemyList:
+        # simpleMapList[enemy.ypos][enemy.xpos] = 0x9D
+    #    unitMoveMap[enemy.ypos][enemy.xpos] = -8
+    unitMoveMap[unitY][unitX] = 99
+    unitMoveMap = realFloodFill(
+        unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, 99, simpleMapList, unitMoveType)
     return unitMoveMap
 
 
@@ -469,7 +492,7 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
     return attackRating
 
 
-def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies):
+def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies, enemyList):
     # the default best move is to not move at all.
     bestMoveX = unit.xpos
     bestMoveY = unit.ypos
@@ -484,6 +507,10 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies)
     bestMove = [0]
     if not attackableEnemies:
         print("entered here")
+        fullMapRange = findFullMapMove(simpleMapList, unit, unitList)
+        nearestEnemy = findNearestEnemy(
+            fullMapRange, simpleMapList, unit, unitList, enemyList)
+
         return [0, [bestMoveY, bestMoveX]]
 
     for enemyAttack in attackableEnemies:
@@ -504,6 +531,38 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies)
             itemPos += 1
 
     return bestMove
+
+
+def findNearestEnemy(fullMoveMap, simpleMapList, unit, unitList, enemyList):
+    # due to the different way fullMoveMap works, this might not work
+    enemiesReachableEventually = findAttackableEnemies(
+        fullMoveMap, simpleMapList, unit, unitList, enemyList)
+    if not enemiesReachableEventually:
+        return 0
+    nearestEnemy = []
+    nearestEnemyDistance = 999
+    xPos = unit.xpos
+    yPos = unit.ypos
+    currEnemy = []
+    for enemies in enemiesReachableEventually:
+        currEnemy = enemies
+        currEnemyXpos = enemies.xpos
+        currEnemyYpos = enemies.ypos
+        if fullMoveMap[currEnemyYpos][currEnemyXpos] < nearestEnemyDistance:
+            nearestEnemy = currEnemy
+            nearestEnemyDistance = fullMoveMap[currEnemyYpos][currEnemyXpos]
+
+    return [nearestEnemy, ]
+
+
+# might need new approach, focused around using shortest path algorithms to find the optimal enemy to attack.
+# would take into consideration both the enemy's attack rating (so how successful an attack would be) and the distance from the enemy
+# maybe as a straight up multiplier/divisor depending on how many turns it'd take to reach it? Would also be reusable for objectives.
+# I think this is the best approach, so start learning djkstra's bucko
+
+def findShortestPathToAllEnemiesAndTiles(unitMoveMap, unit, enemyList, unitList, simpleMap):
+
+    return 0
 
 
 def passableTerrain(tile, unitMoveType):
@@ -570,8 +629,8 @@ def main():
     # print("Magic Weapons: " + str(magWeaponList))
     # print("Staves: " + str(staffList))
 
-    pyautogui.moveTo(7, 80, 0.2)
-    pyautogui.click()
+    # pyautogui.moveTo(7, 80, 0.2)
+    # pyautogui.click()
 
     # mapsize = list(sockettest.main(commandList[3]))
 
@@ -607,106 +666,151 @@ def main():
     # print(unitList[0].classMoveId)
     unitMoveList = []
     allMoveList = []
-    controller.press_a()
-    for units in unitList:
-        print(units.name + "'s possible moves")
-        unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
-        print(unitMoveList)
-        print("Unit ranges: ")
-        print(units.ranges)
-        attackableEnemies = findAttackableEnemies(
-            unitMoveList, simpleMapList, units, unitList, enemyList)
-        print("Enemies they can attack are: ")
-        print(attackableEnemies)
-        bestMove = findBestMove(simpleMapList, unitMoveList,
-                                units, unitList, attackableEnemies)
-        print(bestMove[0])
-        if not (bestMove[0] == 0):
-            print("trying to do a move")
-            doMove(units, bestMove)
-        else:
-            controller.press_a()
-            controller.end_move()
-        controller.next_unit()
-    controller.end_turn()
-    # findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
-
-    # unitBestMove, bestX, bestY = findBestMove(
-    #    simpleMapList, unitMoveList, units, unitList, enemyList)
-
-    # unitMoveX, unitMoveY = findGoodMoves(
-    #    moveMapList, unitList[0], unitList, enemyList)
-    # print("Simplified map data is:")
-    # print(moveMapList)
-    # mapList = list(mapData)
-    # print(mapList)
-    # print(mapList[20])
-    # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
-    # print(mapsize)
-    # print(isPlayerPhase)
-    # if isPlayerPhase == 'T':
-    #    print("It's your turn")
-    # else:
-    #    print("Not your turn")
-    # unitList = storeUnits(unitData)
-    # enemyList = storeUnits(enemyData)
-
-    # need to figure out map stuff before I can create main loop
-    """while isPlayerPhase == 'T':
-        for units in unitList:
-            if not units.hasMoved:
-                moveX, moveY, moveAction = decideMove(
-                    units, unitList, enemyList)
-                moveTo(units.xpos, units.ypos, moveX, moveY)
-"""
-    # moveList = []
-    # for units in unitList:
-    #    units.printUnitInformation()
-    # for enemies in enemyList:
-    #    enemies.printUnitInformation()
-    # print(money)
-    # print(unitList)
-    # print(enemyList)
-    # print(money)
-    """for currUnit in unitList:
-        moveList.append(decideMove())
-    controller.next_unit()
-    unitX = unitList[0].xpos
-    unitY = unitList[0].ypos
-    enemiesInRange = enemyInRange(unitList[0], enemyList)
-    if not enemiesInRange:
-        moveTo(unitX, unitY, unitX-3, unitY-2)
-        time.sleep(1)
-        controller.end_move()
-
-    else:
-        moveTo(unitX, unitY,
-               enemiesInRange[0].xpos+1, enemiesInRange[0].ypos)
-        time.sleep(1)
-        controller.attack()"""
-    # for units in unitList:
-
-    # Test for making sure the class data is generated correctly
-    # unitId = units.id
-    # print("This unit is: " + unitId)
-    # print(unitId + " is in the class corresponding to: " + units.classId)
-    # print(units.classId + " is the " + units.className + " class")
-    # print(units.className + " has " + units.classCon + " con, " +
-    #      units.classMove + " move, " + units.classMoveType + " move type")
-    # print("So " + unitId + " has " + str(units.trueMove) +
-    #      " move and " + str(units.trueCon) + " constitution")
-
-    # lyn moved to 0c 05
-    # needs a buffer for attack animations.
-    # time.sleep(2)
-
-    # controller.press_up()
-
-    # attacking requires 3 a presses. One to select the attack option, one to select the weapon, one to select the enemy.
-    # controller.press_a(3)
-
-    # controller.press_up()
+    print(simpleMapList)
+    for currUnit in unitList:
+        print(currUnit.name)
+        oldMoveMap = findAllMoves(simpleMapList, currUnit, unitList, enemyList)
+        print("Old Map:")
+        print(oldMoveMap)
+        # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
+        # print("Old new map list")
+        #   print(newMoveMap)
+        print("New Move List")
+        newMoveList = movement.findAllMoves(
+            simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
+        iterator = 0
+        for enemy in enemyList:
+            print(enemy)
+            print(newMoveList[iterator])
+            iterator += 1
+    
+    """currUnit = unitList[0]
+    oldMoveMap = findAllMoves(simpleMapList, currUnit, unitList, enemyList)
+    print("Old Map:")
+    print(oldMoveMap)
+    # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
+    # print("Old new map list")
+    # print(newMoveMap)
+    print("New Move List")
+    newMoveList = movement.findAllMoves(
+        simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
+    iterator = 0
+    for enemy in enemyList:
+        print(enemy)
+        print(newMoveList[iterator])
+        iterator += 1"""
+    # print(newMoveList)
     # controller.press_a()
+#     for units in unitList:
+#         print(units.name)
+#         print("Old Map: ")
+#         oldMoveMap = findAllMoves(simpleMapList, units, unitList, enemyList)
+#         print(oldMoveMap)
+
+#         print("New Map: ")
+#         # unitMoveMap = newMoveMap(simpleMapList, units, unitList, enemyList)
+#         unitMoveMap = findFullMapMove(
+#             simpleMapList, units, unitList, enemyList)
+#         print(unitMoveMap)
+
+#         """print(units.name + "'s possible moves")
+#         unitMoveList = findAllMoves(simpleMapList, units, unitList, enemyList)
+#         print(unitMoveList)
+#         print("Unit ranges: ")
+#         print(units.ranges)
+#         attackableEnemies = findAttackableEnemies(
+#             unitMoveList, simpleMapList, units, unitList, enemyList)
+#         print("Enemies they can attack are: ")
+#         print(attackableEnemies)
+#         bestMove = findBestMove(simpleMapList, unitMoveList,
+#                                 units, unitList, attackableEnemies)
+#         print(bestMove[0])
+#         if not (bestMove[0] == 0):
+#             print("trying to do a move")
+#             doMove(units, bestMove)
+#         else:
+#             controller.press_a()
+#             controller.end_move()
+#         controller.next_unit()
+#     controller.end_turn()"""
+#     # findUnitAttacks(unitMoveList, simpleMapList, enemyList, unitList[0])
+
+#     # unitBestMove, bestX, bestY = findBestMove(
+#     #    simpleMapList, unitMoveList, units, unitList, enemyList)
+
+#     # unitMoveX, unitMoveY = findGoodMoves(
+#     #    moveMapList, unitList[0], unitList, enemyList)
+#     # print("Simplified map data is:")
+#     # print(moveMapList)
+#     # mapList = list(mapData)
+#     # print(mapList)
+#     # print(mapList[20])
+#     # isPlayerPhase = sockettest.main(commandList[5]).decode('utf-8')
+#     # print(mapsize)
+#     # print(isPlayerPhase)
+#     # if isPlayerPhase == 'T':
+#     #    print("It's your turn")
+#     # else:
+#     #    print("Not your turn")
+#     # unitList = storeUnits(unitData)
+#     # enemyList = storeUnits(enemyData)
+
+#     # need to figure out map stuff before I can create main loop
+#     """while isPlayerPhase == 'T':
+#         for units in unitList:
+#             if not units.hasMoved:
+#                 moveX, moveY, moveAction = decideMove(
+#                     units, unitList, enemyList)
+#                 moveTo(units.xpos, units.ypos, moveX, moveY)
+# """
+#     # moveList = []
+#     # for units in unitList:
+#     #    units.printUnitInformation()
+#     # for enemies in enemyList:
+#     #    enemies.printUnitInformation()
+#     # print(money)
+#     # print(unitList)
+#     # print(enemyList)
+#     # print(money)
+#     """for currUnit in unitList:
+#         moveList.append(decideMove())
+#     controller.next_unit()
+#     unitX = unitList[0].xpos
+#     unitY = unitList[0].ypos
+#     enemiesInRange = enemyInRange(unitList[0], enemyList)
+#     if not enemiesInRange:
+#         moveTo(unitX, unitY, unitX-3, unitY-2)
+#         time.sleep(1)
+#         controller.end_move()
+
+#     else:
+#         moveTo(unitX, unitY,
+#                enemiesInRange[0].xpos+1, enemiesInRange[0].ypos)
+#         time.sleep(1)
+#         controller.attack()"""
+#     # for units in unitList:
+
+#     # Test for making sure the class data is generated correctly
+#     # unitId = units.id
+#     # print("This unit is: " + unitId)
+#     # print(unitId + " is in the class corresponding to: " + units.classId)
+#     # print(units.classId + " is the " + units.className + " class")
+#     # print(units.className + " has " + units.classCon + " con, " +
+#     #      units.classMove + " move, " + units.classMoveType + " move type")
+#     # print("So " + unitId + " has " + str(units.trueMove) +
+#     #      " move and " + str(units.trueCon) + " constitution")
+
+#     # lyn moved to 0c 05
+#     # needs a buffer for attack animations.
+#     # time.sleep(2)
+
+#     # controller.press_up()
+
+#     # attacking requires 3 a presses. One to select the attack option, one to select the weapon, one to select the enemy.
+#     # controller.press_a(3)
+
+#     # controller.press_up()
+#     # controller.press_a()
 
 
 main()
