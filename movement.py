@@ -2,6 +2,26 @@ import numpy
 from numpy import Inf
 
 
+def findObjective(simpleMapList, unit, unitList, terrainDictionary, objective):
+    print("Attempting to find path to throne")
+    unitX = unit.xpos
+    unitY = unit.ypos
+    objectiveY = int(objective[0])
+    objectiveX = int(objective[1])
+    # print(objectiveY)
+    # print(objectiveX)
+    unitMoveType = unit.classMoveId
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    unitMoveMap = numpy.ones((mapY, mapX))*Inf
+    visited = numpy.zeros((mapY, mapX))
+    unitMoveMap[unitY][unitX] = 0
+    path = findShortestPathToAllEnemiesAndTiles(
+        unitX, unitY, unitMoveMap, objectiveX, objectiveY, simpleMapList, unitMoveType, visited, terrainDictionary)
+
+    return path
+
+
 def findAllMoves(simpleMapList, unit, unitList, enemyList, terrainDictionary):
     # unit list will be used for rescue, dancing, healing and grouping up
     unitX = unit.xpos
@@ -93,6 +113,8 @@ def findShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simple
         t[numpy.where(visited)] = Inf
         node_index = numpy.argmin(t)
         y, x = findMinYX(t)
+        # print(y, x)
+        # print(unitMoveMap)
         # print(t)
         # print(node_index)
         # y = node_index//len(unitMoveMap)

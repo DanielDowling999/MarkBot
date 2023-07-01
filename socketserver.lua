@@ -49,6 +49,9 @@ function GetUnitData(address)
 		address = address+72
 		iterator = iterator +1
 	end
+	if data == '' then
+		data = 'empty'
+	end
 	console:log("Found " .. tostring(iterator-1) .. " units.")
 	return data
 
@@ -72,6 +75,9 @@ function GetPlayerPhase()
 	return 'F'
 end
 
+function GetChapterID()
+	return emu:read8(0x0202BC06)
+end
 function GetMapData()
 	--Get tile range
 	local mapDataSize = (emu:read8(0x0202E3D8)+2)*emu:read8(0x0202E3DA)
@@ -120,7 +126,11 @@ function ST_received(id)
 			elseif msg == "getMap" then
 				data = GetMapData()
 				console:log("Sucessfully retrieved Map Data")
+			elseif msg == "getChapterID" then
+				data = GetChapterID()
+				console:log("Successfully retrieved Chapter ID")
 			end
+			
 			console:log(ST_format(id, p:match("^(.-)%s*$")))
 			sock:send(data)
 		else

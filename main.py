@@ -7,16 +7,17 @@ import csv
 import numpy
 import copy
 import movement
-# Moving the mouse onto the emulator and testing extremely basic movement options.
+import random
 itemList = []
 physWeaponList = []
 magWeaponList = []
 staffList = []
 classList = []
 terrainDictionary = {}  # id: name, Def Bonus, Avoid Bonus, Hp Recovery, Infantry A, Infantry B, Brigand, Pirate, Bereserker, Mages, Armor, Cav A, Cav B, Nomad, Nomad Trooper, Flier, Dragon
-
+chapterData = []
 commandList = ["getUnits", "getEnemies",
-               "getMoney", "getMapSize", "getMap", "getIsPlayerPhase"]
+               "getMoney", "getMapSize", "getMap", "getIsPlayerPhase", "getChapterID"]
+objective = "rout"
 # Create a second dictionary corresponding to ids, to allow for similar objects to share the same dictionary.
 # For example, (key ->)01:(value ->)01, 02:01 (02 is a road tile, which has the exact same stats as plain (01))
 
@@ -76,12 +77,26 @@ def fillItemLists():
     global staffList
     global classList
     global terrainDictionary
+    global chapterData
     itemList = openItemFile("Data/items.txt")
     physWeaponList = openItemFile("Data/physWeapons.txt")
     magWeaponList = openItemFile("Data/magWeapons.txt")
     staffList = openItemFile("Data/staves.txt")
     classList = openItemFile("Data/class.txt")
     terrainDictionary = openCSV("Data/Fixed Terrain Data.csv")
+    chapterData = openItemFile("Data/chapterdata.txt")
+
+
+def getChapterObjective():
+    global chapterData
+    print(chapterData)
+    currChapterData = sockettest.main(commandList[6])
+    currChapterData = int(currChapterData.decode())
+    objective = chapterData[currChapterData][1:4]
+
+    # objective = chapterData.get(str(currChapterData))
+    print(objective)
+    return objective
 
 
 def moveTo(startX, startY, endX, endY):
@@ -208,9 +223,25 @@ def getUnitData(data):
 
 
 def getEnemyData(data):
+    enemyList = []
+    dataCopy = data
+    # note: below might not work, data might not match 'empty'
+    if data == 'empty':
+        return enemyList
+
+    else:
+        enemyData = list(data)
+        enemyList = storeUnits(enemyData)
+
+    return enemyList
+
+
+"""def getEnemyData(data):
+    enemyList = []
     enemyData = list(data)
     enemyList = storeUnits(enemyData)
     return enemyList
+"""
 
 
 def createMoveMap(mapData, unitList, enemyList):
@@ -485,15 +516,16 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
         hpDamage = hpDamage - damage
     elif enemyDouble and enemyCanAttackBack:
         enemyHpDamage = enemyHpDamage - enemyDamage
-    print(hpDamage)
-    print(enemyHpDamage)
+    # print(hpDamage)
+    # print(enemyHpDamage)
     # BAD CALCULATION, BUT THIS ALL WORKS NEEDS HIT CALC BARE MINIMUM, AND TERRAIN STATS
     attackRating = (float(damage)/enemyHp - float(enemyDamage)/unitHp)*100
     return attackRating
 
 
-def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies, enemyList):
+def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies, enemyList, objective):
     # the default best move is to not move at all.
+    global terrainDictionary
     bestMoveX = unit.xpos
     bestMoveY = unit.ypos
     bestMoveAction = ""
@@ -504,16 +536,43 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
     # enemiesInRange = enemyInRange(unitMoveList, enemyList, unit.maxRange)
     # print(enemiesInRange)
     # bestMoveAction = "nothing"
-    bestMove = [0]
+    bestMove = [-100]
     if not attackableEnemies:
         print("entered here")
-        fullMapRange = findFullMapMove(simpleMapList, unit, unitList)
-        nearestEnemy = findNearestEnemy(
-            fullMapRange, simpleMapList, unit, unitList, enemyList)
+        # fullMapRange = findFullMapMove(simpleMapList, unit, unitList)
+        # nearestEnemy = findNearestEnemy(
+        #    fullMapRange, simpleMapList, unit, unitList, enemyList)
+        moveTowardList = movement.findAllMoves(
+            simpleMapList, unit, unitList, enemyList, terrainDictionary)
+        print(moveTowardList)
+        if not moveTowardList:
+            if unit.name == 'lyn':
+                seizeLocation = objective[1:3]
+                moveTowardList = movement.findObjective(
+                    simpleMapList, unit, unitList, terrainDictionary, seizeLocation)
+                bestMoveAction = "move"
+                if len(moveTowardList) <= unit.trueMove-1:
+                    bestMoveAction = "seize"
 
-        return [0, [bestMoveY, bestMoveX]]
+                return (0, moveTowardList, bestMoveAction)
+
+            return [0, bestMoveY, bestMoveX, "wait"]
+
+        # First idea: Randomly select an enemy to move towards. Will also need to include a 0,0 point. Or Objective.
+        # Or just wait in place?
+        # will need to work the maxVal stuff into the seize stuff
+        maxVal = len(moveTowardList)
+        index = random.randint(0, maxVal-1)
+        bestMoveY = moveTowardList[index][unit.trueMove][0]
+        bestMoveX = moveTowardList[index][unit.trueMove][1]
+        bestMoveAction = "move"
+        print(bestMoveY, bestMoveX)
+        return [0, [bestMoveY, bestMoveX], bestMoveAction]
+
+        # return [0, [bestMoveY, bestMoveX]]
 
     for enemyAttack in attackableEnemies:
+        print(enemyAttack)
         attackRange = enemyAttack[1][0][2]
         for item in unit.fullInv:
             if not item[3] == "ITEM":
@@ -525,8 +584,12 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
                         attackRating = calculateAttackRating(
                             unit, item, enemyAttack[0], attacks[2])
                         # print(enemyAttack[0], attackRating)
+                        # print(bestMove)
+                        # print(attackRating)
+                        # print(attackRating > float(bestMove[0])
                         if attackRating > bestMove[0]:
-                            bestMove = [attackRating, attacks, item, itemPos]
+                            bestMove = [attackRating,
+                                        attacks, item, itemPos]
                             print(bestMove)
             itemPos += 1
 
@@ -651,6 +714,8 @@ def main():
 
     # print(unitList[0].inventory)
     # print(unitList[0].fullInv)
+    chapterObjective = getChapterObjective()
+    print(chapterObjective)
     enemyData = sockettest.main(commandList[1])
     enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
@@ -672,18 +737,22 @@ def main():
         oldMoveMap = findAllMoves(simpleMapList, currUnit, unitList, enemyList)
         print("Old Map:")
         print(oldMoveMap)
+        attackableEnemies = findAttackableEnemies(
+            oldMoveMap, simpleMapList, currUnit, unitList, enemyList)
+        print(findBestMove(simpleMapList, unitMoveList,
+              currUnit, unitList, attackableEnemies, enemyList, chapterObjective))
         # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
         # print("Old new map list")
         #   print(newMoveMap)
-        print("New Move List")
-        newMoveList = movement.findAllMoves(
-            simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
-        iterator = 0
+        # print("New Move List")
+        # newMoveList = movement.findAllMoves(
+        #    simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
+        """iterator = 0
         for enemy in enemyList:
             print(enemy)
             print(newMoveList[iterator])
-            iterator += 1
-    
+            iterator += 1"""
+
     """currUnit = unitList[0]
     oldMoveMap = findAllMoves(simpleMapList, currUnit, unitList, enemyList)
     print("Old Map:")
