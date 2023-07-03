@@ -551,12 +551,19 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
                 moveTowardList = movement.findObjective(
                     simpleMapList, unit, unitList, terrainDictionary, seizeLocation)
                 bestMoveAction = "move"
+                index = -1
+                if len(moveTowardList) < unit.trueMove:
+                    bestMoveY = moveTowardList[-1][0]
+                    bestMoveX = moveTowardList[-1][1]
+                else:
+                    bestMoveY = moveTowardList[unit.trueMove][0]
+                    bestMoveX = moveTowardList[unit.trueMove][1]
                 if len(moveTowardList) <= unit.trueMove-1:
                     bestMoveAction = "seize"
 
-                return (0, moveTowardList, bestMoveAction)
+                return (0, [bestMoveY, bestMoveX], 0, 0, bestMoveAction)
 
-            return [0, bestMoveY, bestMoveX, "wait"]
+            return [0, [bestMoveY, bestMoveX], 0, 0, "wait"]
 
         # First idea: Randomly select an enemy to move towards. Will also need to include a 0,0 point. Or Objective.
         # Or just wait in place?
@@ -567,7 +574,7 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
         bestMoveX = moveTowardList[index][unit.trueMove][1]
         bestMoveAction = "move"
         print(bestMoveY, bestMoveX)
-        return [0, [bestMoveY, bestMoveX], bestMoveAction]
+        return [0, [bestMoveY, bestMoveX], 0, 0, bestMoveAction]
 
         # return [0, [bestMoveY, bestMoveX]]
 
@@ -589,9 +596,15 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
                         # print(attackRating > float(bestMove[0])
                         if attackRating > bestMove[0]:
                             bestMove = [attackRating,
-                                        attacks, item, itemPos]
+                                        attacks, item, itemPos, "attack"]
                             print(bestMove)
             itemPos += 1
+    if bestMove[0] <= -100:
+        healingItem = Unit.getHealingItems(unit)
+        print(str(healingItem) + " this is where the healing item is")
+        if healingItem >= 0:
+            bestMove = [-100, [bestMoveY, bestMoveX],
+                        "potion", healingItem, "heal"]
 
     return bestMove
 
@@ -644,12 +657,15 @@ def passableTerrain(tile, unitMoveType):
 def doMove(unit, bestMove):
     unitX = unit.xpos
     unitY = unit.ypos
+    print(bestMove)
     bestMoveX = bestMove[1][1]
     bestMoveY = bestMove[1][0]
     itemPos = bestMove[3]
+    bestMoveAction = bestMove[4]
     currItemPos = 0
     print(bestMoveX)
     print(bestMoveY)
+    # controller.press_a()
     while not (unitX == bestMoveX):
         if unitX > bestMoveX:
             controller.press_left()
@@ -668,16 +684,32 @@ def doMove(unit, bestMove):
             controller.press_down()
             unitY = unitY + 1
             print("moving")
-    print("attacking")
+    print("Acting")
     controller.press_a()
-    time.sleep(1)
-    controller.press_a()
-    while not (itemPos == currItemPos):
-        controller.press_down()
-        currItemPos += 1
-    controller.attack()
+    time.sleep(3)
+    if bestMoveAction == "attack":
+        print("attacking")
+        controller.press_a()
+        while not (itemPos == currItemPos):
+            controller.press_down()
+            currItemPos += 1
+        controller.attack()
 
-    time.sleep(5)
+        time.sleep(5)
+    elif bestMoveAction == "seize":
+        print("seizing")
+        controller.press_a()
+    elif bestMoveAction == "heal":
+        print("healing")
+        controller.press_a()
+        while not (itemPos == currItemPos):
+            controller.press_down()
+            currItemPos += 1
+        controller.press_a()
+
+    else:
+        controller.end_move()
+
     return
 
 
@@ -692,8 +724,8 @@ def main():
     # print("Magic Weapons: " + str(magWeaponList))
     # print("Staves: " + str(staffList))
 
-    # pyautogui.moveTo(7, 80, 0.2)
-    # pyautogui.click()
+    pyautogui.moveTo(7, 80, 0.2)
+    pyautogui.click()
 
     # mapsize = list(sockettest.main(commandList[3]))
 
@@ -703,9 +735,11 @@ def main():
 
     # print(mapxlength)
     # print(mapylength)
-
-    unitData = sockettest.main(commandList[0])
-    unitList = getUnitData(unitData)
+    chapterObjective = getChapterObjective()
+    print(chapterObjective)
+    while (True):
+        unitData = sockettest.main(commandList[0])
+        unitList = getUnitData(unitData)
     # for units in unitList:
     #    print(units.name)
     # print(units.fullInv)
@@ -714,40 +748,57 @@ def main():
 
     # print(unitList[0].inventory)
     # print(unitList[0].fullInv)
-    chapterObjective = getChapterObjective()
-    print(chapterObjective)
-    enemyData = sockettest.main(commandList[1])
-    enemyList = getEnemyData(enemyData)
+
+        enemyData = sockettest.main(commandList[1])
+        enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
-    mapData = sockettest.main(commandList[4])
-    mapList = list(mapData)
+        mapData = sockettest.main(commandList[4])
+        mapList = list(mapData)
     # print(mapList)
     # print("Base map data is:")
     # print(mapList)
-    simpleMapList = createMoveMap(mapData, unitList, enemyList)
+        simpleMapList = createMoveMap(mapData, unitList, enemyList)
 
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
-    unitMoveList = []
-    allMoveList = []
-    print(simpleMapList)
-    for currUnit in unitList:
-        print(currUnit.name)
-        oldMoveMap = findAllMoves(simpleMapList, currUnit, unitList, enemyList)
-        print("Old Map:")
-        print(oldMoveMap)
-        attackableEnemies = findAttackableEnemies(
-            oldMoveMap, simpleMapList, currUnit, unitList, enemyList)
-        print(findBestMove(simpleMapList, unitMoveList,
-              currUnit, unitList, attackableEnemies, enemyList, chapterObjective))
-        # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
-        # print("Old new map list")
-        #   print(newMoveMap)
-        # print("New Move List")
-        # newMoveList = movement.findAllMoves(
-        #    simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
-        """iterator = 0
+        unitMoveList = []
+        allMoveList = []
+        print(simpleMapList)
+        controller.press_a()
+        for currUnit in unitList:
+            print(currUnit.name)
+            oldMoveMap = findAllMoves(
+                simpleMapList, currUnit, unitList, enemyList)
+            print("Old Map:")
+            print(oldMoveMap)
+            attackableEnemies = findAttackableEnemies(
+                oldMoveMap, simpleMapList, currUnit, unitList, enemyList)
+            bestMove = findBestMove(simpleMapList, unitMoveList,
+                                    currUnit, unitList, attackableEnemies, enemyList, chapterObjective)
+            # if not bestMove[0] == -100:
+            doMove(currUnit, bestMove)
+            # else:
+            #    controller.press_a()
+            #    controller.end_move()
+            controller.next_unit()
+            unitData = sockettest.main(commandList[0])
+            unitList = getUnitData(unitData)
+            enemyData = sockettest.main(commandList[1])
+            enemyList = getEnemyData(enemyData)
+            mapData = sockettest.main(commandList[4])
+            mapList = list(mapData)
+            simpleMapList = createMoveMap(mapData, unitList, enemyList)
+
+        time.sleep(10)
+
+    # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
+    # print("Old new map list")
+    #   print(newMoveMap)
+    # print("New Move List")
+    # newMoveList = movement.findAllMoves(
+    #    simpleMapList, currUnit, unitList, enemyList, terrainDictionary)
+    """iterator = 0
         for enemy in enemyList:
             print(enemy)
             print(newMoveList[iterator])

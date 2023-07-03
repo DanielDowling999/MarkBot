@@ -18,7 +18,7 @@ def findObjective(simpleMapList, unit, unitList, terrainDictionary, objective):
     unitMoveMap[unitY][unitX] = 0
     path = findShortestPathToAllEnemiesAndTiles(
         unitX, unitY, unitMoveMap, objectiveX, objectiveY, simpleMapList, unitMoveType, visited, terrainDictionary)
-
+    print(path)
     return path
 
 

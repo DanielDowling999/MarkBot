@@ -131,6 +131,7 @@ class Unit:
             isItem = Unit.itemList.get(hex(item[0]), False)
             if isItem:
                 currItem = [isItem, item[1]]
+                print(currItem)
                 currItem.append(itemPos)
                 currItem.append("ITEM")
                 fullInv.append(currItem)
@@ -251,8 +252,9 @@ class Unit:
 
     def getHealingItems(self):
         itemPos = 0
-        for items in self.inventory:
-            if (items[0] == 0x6B):
+        for items in self.fullInv:
+            print(items[itemPos])
+            if (items[0] == ['vulnerary']):
                 return itemPos
-            iterator += 1
-        return itemPos
+            itemPos += 1
+        return -1
