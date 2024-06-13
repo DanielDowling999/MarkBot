@@ -24,6 +24,8 @@ objective = "rout"
 
 # note: Throne gets +5 Res
 
+#Updating solely to check that git is working correctly.
+
 terrainKey = {0x01: 0x01, 0x02: 0x01, 0x13: 0x01, 0x17: 0x01,  # 01 - Plains, 02 - Road, 13 - Bridge, 17 - Floor,
               # 19 - Obstacle, 2E - Roof, 26 - Cliff (need to check its not impassable)
               0x19: 0x19, 0x2E: 0x19, 0x26: 0x19,
