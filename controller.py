@@ -1,4 +1,4 @@
-import pyautogui
+import sockettest
 import time
 
 # Set of useful button press functions, for use if I choose to use pyautogui to let the bot control the game.

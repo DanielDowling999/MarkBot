@@ -8,7 +8,7 @@ The bot is capable of completing the first few levels of the game. More work nee
 
 - mGBA (recommended to build it from here: https://github.com/mgba-emu/mgba)
 - A ROM of Fire Emblem (version US 1.0). This must be ripped yourself from an official copy of the game. This application does not include ANY of the game's files.
-- Arch's Tutorial Slayer. Locating this patch can be a little difficult. I would recommend using YUNE (https://github.com/lushen124/Universal-FE-Randomizer) to patch the game, making sure to only select 'disable tutorial for lyn mode'. Selecting other options may cause the bot to fail.
+- A save file that has access to the 'Hard Mode' versions of the chapters. The tutorials forced by normal mode cause issues with the bot, creating desyncs.
 - A python installation.
 
 # Steps to Run:

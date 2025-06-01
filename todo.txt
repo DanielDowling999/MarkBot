@@ -1,0 +1,4 @@
+Enemy unit data isn't being read after first enemy is killed on 2nd map. Likely because the enemy is
+the 'first', and so when he's killed he's deleted from memory. Because of the way we check for 
+enemies, his deleted data would mean that the rest of the enemies will no longer be seen.
+How to fix: Change how we get the unit data? Can't just do it once and update due to reinforcements

@@ -38,11 +38,14 @@ class Unit:
 
         self.id = str(
             hex(unitData[0])) + f'{unitData[1]:{0}2x}' + f'{unitData[2]:{0}2x}' + f'{unitData[3]:{0}2x}'  # f formats the string {0} ensures no leading 0's are deleted
+        #print(self.id)
         self.nameId = f'{unitData[1]:{0}2x}' + f'{unitData[0]:{0}2x}'
+
         # f formats the string {0} ensures no leading 0's are deleted
         # self.classId = str(hex(
         #    unitData[4])) + f'{unitData[5]:{0}2x}' + f'{unitData[6]:{0}2x}' + f'{unitData[7]:{0}2x}'
         self.classId = f'{unitData[5]:{0}2x}' + f'{unitData[4]:{0}2x}'
+        #print(self.classId)
         self.level = unitData[8]
         self.exp = unitData[9]
         self.deployPos = unitData[11]

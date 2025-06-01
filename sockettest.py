@@ -14,7 +14,8 @@ def storeUnits(unitData):
     return unitList
 
 
-def main(command='sendHello'):
+#change 1 - find a way to stay connected to the server rather than disconnecting after every command
+def send(command='sendHello'):
     data = ''
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.connect(('localhost', 8888))
@@ -54,3 +55,4 @@ def main(command='sendHello'):
     # for x in range(len(enemyList)):
     #    print("This enemy's id is : " +
     #        enemyList[x].id + ", and their class id is " + enemyList[x].classId)
+

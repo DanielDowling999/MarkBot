@@ -1,13 +1,15 @@
-import pyautogui
-import controller
+#import pyautogui
+#import controller
 import time
 import sockettest
+from mgbaClient import MgbaClient
 from unit import Unit
 import csv
 import numpy
 import copy
 import movement
 import random
+import newController
 itemList = []
 physWeaponList = []
 magWeaponList = []
@@ -89,11 +91,12 @@ def fillItemLists():
     chapterData = openItemFile("Data/chapterdata.txt")
 
 
-def getChapterObjective():
+def getChapterObjective(client):
     global chapterData
     print(chapterData)
-    currChapterData = sockettest.main(commandList[6])
-    currChapterData = int(currChapterData.decode())
+    #currChapterData = sockettest.send(commandList[6])
+    currChapterData = int(client.send_command(commandList[6])[0])
+    #currChapterData = int(currChapterData.decode())
     objective = chapterData[currChapterData][1:4]
 
     # objective = chapterData.get(str(currChapterData))
@@ -101,7 +104,7 @@ def getChapterObjective():
     return objective
 
 
-def moveTo(startX, startY, endX, endY):
+"""def moveTo(startX, startY, endX, endY):
     moveX = endX-startX
     moveY = endY-startY
     if (moveX < 0):
@@ -114,6 +117,8 @@ def moveTo(startX, startY, endX, endY):
         controller.press_down(moveY)
     controller.press_a()
     time.sleep(1)
+"""
+
 
 
 def enemyInRange(unitMoveMap, enemyList, unitMaxRange):
@@ -636,7 +641,7 @@ def findNearestEnemy(fullMoveMap, simpleMapList, unit, unitList, enemyList):
 # might need new approach, focused around using shortest path algorithms to find the optimal enemy to attack.
 # would take into consideration both the enemy's attack rating (so how successful an attack would be) and the distance from the enemy
 # maybe as a straight up multiplier/divisor depending on how many turns it'd take to reach it? Would also be reusable for objectives.
-# I think this is the best approach, so start learning djkstra's bucko
+# I think this is the best approach, so look into Djkstra's
 
 def findShortestPathToAllEnemiesAndTiles(unitMoveMap, unit, enemyList, unitList, simpleMap):
 
@@ -655,8 +660,8 @@ def passableTerrain(tile, unitMoveType):
         return False
     return True
 
-
-def doMove(unit, bestMove):
+# GET ADVICE ON FIXING CONTROLS. THIS IS CRUCIAL
+def doMove(unit, bestMove, client):
     unitX = unit.xpos
     unitY = unit.ypos
     print(bestMove)
@@ -668,54 +673,100 @@ def doMove(unit, bestMove):
     print(bestMoveX)
     print(bestMoveY)
     # controller.press_a()
+    """    
     while not (unitX == bestMoveX):
         if unitX > bestMoveX:
-            controller.press_left()
+            sockettest.send("pressLeft")
+            time.sleep(0.2)
+            #controller.press_left()
             unitX = unitX - 1
             print("moving")
         elif unitX < bestMoveX:
-            controller.press_right()
+            sockettest.send("pressRight")
+            time.sleep(0.2)
+            #controller.press_right()
             unitX = unitX + 1
             print("moving")
     while not (unitY == bestMoveY):
         if (unitY > bestMoveY):
-            controller.press_up()
+            sockettest.send("pressUp")
+            time.sleep(0.2)
+            #controller.press_up()
             unitY = unitY - 1
             print("moving")
         elif unitY < bestMoveY:
-            controller.press_down()
+            sockettest.send("pressDown")
+            time.sleep(0.2)
+            #controller.press_down()
             unitY = unitY + 1
             print("moving")
+    """
+    newController.press_a(client)
+    while not (unitX == bestMoveX):
+        if unitX > bestMoveX:
+            newController.press_left(client)
+            unitX = unitX -1
+        else:
+            newController.press_right(client)
+            unitX = unitX +1
+        time.sleep(0.2)
+    while not (unitY == bestMoveY):
+        if unitY > bestMoveY:
+            newController.press_up(client)
+            unitY = unitY -1
+        else:
+            newController.press_down(client)
+            unitY = unitY +1
+        time.sleep(0.2)
     print("Acting")
-    controller.press_a()
+    newController.press_a(client)
+    #controller.press_a()
     time.sleep(3)
     if bestMoveAction == "attack":
         print("attacking")
-        controller.press_a()
-        while not (itemPos == currItemPos):
-            controller.press_down()
-            currItemPos += 1
-        controller.attack()
+        newController.press_a(client)
 
+        #controller.press_a()
+        while not (itemPos == currItemPos):
+            newController.press_down(client)
+            #controller.press_down()
+            currItemPos += 1
+        #controller.attack()
+        for i in range(3):
+            newController.press_a(client)
+            time.sleep(0.2)
         time.sleep(5)
     elif bestMoveAction == "seize":
         print("seizing")
-        controller.press_a()
+        #controller.press_a()
+        newController.press_a(client)
+
     elif bestMoveAction == "heal":
         print("healing")
-        controller.press_a()
+        #controller.press_a()
+        newController.press_a(client)
+        time.sleep(0.2)
         while not (itemPos == currItemPos):
-            controller.press_down()
+            #controller.press_down()
+            newController.press_down(client)
+            time.sleep(0.2)
             currItemPos += 1
-        controller.press_a()
+        #controller.press_a()
+        newController.press_a(client)
+        time.sleep(0.2)
 
     else:
-        controller.end_move()
+        print("Ending turn")
+        newController.end_move(client)
+        
+
 
     return
 
 
 def main():
+    client = MgbaClient()
+
     global commandList
     global terrainDictionary
     fillItemLists()
@@ -726,8 +777,8 @@ def main():
     # print("Magic Weapons: " + str(magWeaponList))
     # print("Staves: " + str(staffList))
 
-    pyautogui.moveTo(7, 80, 0.2)
-    pyautogui.click()
+    #pyautogui.moveTo(7, 80, 0.2)
+    #pyautogui.click()
 
     # mapsize = list(sockettest.main(commandList[3]))
 
@@ -737,11 +788,20 @@ def main():
 
     # print(mapxlength)
     # print(mapylength)
-    chapterObjective = getChapterObjective()
+    chapterObjective = getChapterObjective(client)
+    time.sleep(0.1)
     print(chapterObjective)
     while (True):
-        unitData = sockettest.main(commandList[0])
+        #neccessary to skip any dialogue at the start of a chapter
+        newController.press_start(client)
+        newController.press_start(client)
+        time.sleep(0.1)
+        unitData = client.send_command(commandList[0])
+        time.sleep(0.1)
+        #unitData = sockettest.send(commandList[0])
+        print(unitData)
         unitList = getUnitData(unitData)
+
     # for units in unitList:
     #    print(units.name)
     # print(units.fullInv)
@@ -750,11 +810,14 @@ def main():
 
     # print(unitList[0].inventory)
     # print(unitList[0].fullInv)
-
-        enemyData = sockettest.main(commandList[1])
+        enemyData = client.send_command(commandList[1])
+        time.sleep(0.1)
+        #enemyData = sockettest.send(commandList[1])
         enemyList = getEnemyData(enemyData)
     # money = int(sockettest.main(commandList[2]))
-        mapData = sockettest.main(commandList[4])
+        mapData = client.send_command(commandList[4])
+        time.sleep(0.1)
+        #mapData = sockettest.send(commandList[4])
         mapList = list(mapData)
     # print(mapList)
     # print("Base map data is:")
@@ -767,8 +830,11 @@ def main():
         unitMoveList = []
         allMoveList = []
         print(simpleMapList)
-        controller.press_a()
+        #controller.press_a()
+        
         for currUnit in unitList:
+            
+            
             print(currUnit.name)
             oldMoveMap = findAllMoves(
                 simpleMapList, currUnit, unitList, enemyList)
@@ -779,20 +845,27 @@ def main():
             bestMove = findBestMove(simpleMapList, unitMoveList,
                                     currUnit, unitList, attackableEnemies, enemyList, chapterObjective)
             # if not bestMove[0] == -100:
-            doMove(currUnit, bestMove)
+            doMove(currUnit, bestMove, client)
             # else:
             #    controller.press_a()
             #    controller.end_move()
-            controller.next_unit()
-            unitData = sockettest.main(commandList[0])
+            #controller.next_unit()
+            
+            #unitData = sockettest.send(commandList[0])
+            unitData = client.send_command(commandList[0])
             unitList = getUnitData(unitData)
-            enemyData = sockettest.main(commandList[1])
+            #enemyData = sockettest.send(commandList[1])
+            enemyData = client.send_command(commandList[1])
             enemyList = getEnemyData(enemyData)
-            mapData = sockettest.main(commandList[4])
+            #mapData = sockettest.send(commandList[4])
+            mapData = client.send_command(commandList[4])
             mapList = list(mapData)
             simpleMapList = createMoveMap(mapData, unitList, enemyList)
-
-        time.sleep(10)
+            #newController.next_unit(client)
+            newController.press_l(client)
+        newController.end_turn(client)
+        #Need to find a flag to wait for so we know when it's our turn again.
+        time.sleep(20)
 
     # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)
     # print("Old new map list")

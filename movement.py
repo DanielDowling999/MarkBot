@@ -1,5 +1,5 @@
 import numpy
-from numpy import Inf
+from numpy import inf
 
 
 def findObjective(simpleMapList, unit, unitList, terrainDictionary, objective):
@@ -13,7 +13,7 @@ def findObjective(simpleMapList, unit, unitList, terrainDictionary, objective):
     unitMoveType = unit.classMoveId
     mapX = len(simpleMapList[0])
     mapY = len(simpleMapList)
-    unitMoveMap = numpy.ones((mapY, mapX))*Inf
+    unitMoveMap = numpy.ones((mapY, mapX))*inf
     visited = numpy.zeros((mapY, mapX))
     unitMoveMap[unitY][unitX] = 0
     path = findShortestPathToAllEnemiesAndTiles(
@@ -30,7 +30,7 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList, terrainDictionary):
     unitMoveType = unit.classMoveId
     mapX = len(simpleMapList[0])
     mapY = len(simpleMapList)
-    unitMoveMap = numpy.ones((mapY, mapX))*Inf
+    unitMoveMap = numpy.ones((mapY, mapX))*inf
     visited = numpy.zeros((mapY, mapX))
     enemyPaths = []
 
@@ -52,7 +52,7 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList, terrainDictionary):
             unitX, unitY, unitMoveMap, enemy.xpos, enemy.ypos, simpleMapList, unitMoveType, visited, terrainDictionary))
         iterator += 1
         print("Path found to " + str(iterator))
-        unitMoveMap = numpy.ones((mapY, mapX))*Inf
+        unitMoveMap = numpy.ones((mapY, mapX))*inf
         unitMoveMap[unitY][unitX] = 0
 
         visited = numpy.zeros((mapY, mapX))
@@ -110,7 +110,7 @@ def findShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simple
         y = node_index//len(simpleMap)
         x = node_index % len(simpleMap[0])"""
         t = unitMoveMap.copy()
-        t[numpy.where(visited)] = Inf
+        t[numpy.where(visited)] = inf
         node_index = numpy.argmin(t)
         y, x = findMinYX(t)
         # print(y, x)
@@ -132,7 +132,7 @@ def findMinYX(t):
     # print(t)
     xMin = 0
     yMin = 0
-    minVal = Inf
+    minVal = inf
     for row in range(len(t)):
         for col in range(len(t[0])):
             if t[row][col] < minVal:
