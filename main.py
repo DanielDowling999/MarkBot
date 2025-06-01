@@ -766,7 +766,7 @@ def doMove(unit, bestMove, client):
 
 def main():
     client = MgbaClient()
-
+    print("Running branched version")
     global commandList
     global terrainDictionary
     fillItemLists()

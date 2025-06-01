@@ -50,23 +50,34 @@ end
 --Suite of functions to retrieve player and enemy unit data. Will eventually need one for green 'ally' units as well
 function GetMyUnitData()
 	local address = 0x202BD50
-	local myUnitsData = GetUnitData(address)
+	local maxPlayerUnits = 20 --Should be higher than is actually possible in game, but I want to leave a small buffer in case there's a chapter with a lot of reinforcements.
+	local myUnitsData = GetUnitData(address, maxPlayerUnits)
 	return myUnitsData
 end
 
-function GetUnitData(address)
-	local iterator = 1
+function GetUnitData(address, count)
+	--local iterator = 1
 	local data = ''
+	local validUnits = 0
 	--Units take up 72 bytes of data, and as far as I know, if we reach a section of the unitID code with no data, then we have reached the end of the unit list
-	while(emu:read16(address)>0x0000) do
+	for i = 0, count - 1 do
+		local unitAddr = address+(i*72)
+		local unitID = emu:read16(unitAddr)
+		if unitID > 0x0000 then
+			data = data .. emu:readRange(unitAddr, 72)
+			validUnits = validUnits + 1
+		end
+	end
+
+	--[[while(emu:read16(address)>0x0000) do
 		data = data .. emu:readRange(address,72)
 		address = address+72
 		iterator = iterator +1
-	end
+	end]]
 	if data == '' then
 		data = 'empty'
 	end
-	console:log("Found " .. tostring(iterator-1) .. " units.")
+	console:log("Found " .. tostring(validUnits) .. " units.")
 	return data
 
 end
@@ -98,7 +109,8 @@ end--]]
 
 function GetEnemyData()
 	local enemyAddress = 0x0202CEC0
-	local enemyData = GetUnitData(enemyAddress)
+	local maxEnemies = 50 --This is a hard-coded limit of the game, there will never be more than 50 enemies at once.
+	local enemyData = GetUnitData(enemyAddress, maxEnemies)
 	return enemyData
 end
 
@@ -116,6 +128,7 @@ function GetPlayerPhase()
 end
 
 function GetChapterID()
+	console:log("Running branched version.")
 	return emu:read8(0x0202BC06)
 end
 function GetMapData()
