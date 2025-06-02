@@ -4,11 +4,19 @@ MarkBot is an attempt to create a bot capable of completing the GBA title "Fire 
 
 The bot is capable of completing the first few levels of the game. More work needs to be done to make it more consistent, as well as to beat levels with more complicated layouts, objectives and mid-chapter cutscenes. More work also needs to be done to fix unknown crashes in the server. 
 
+Note: Mid-Chapter cutscenes must be manually skipped at this stage. This is due to their location in memory not being readily apparent, and the game's memory being not that well documented. More research is needed into cutscene flags, including for level-ups.
+
+# Confirmed Beatable Chapters - 
+- Prologue - Beatable (Luck based, there is a chance with the current strategy that Lyn will get hit twice and die)
+- Chapter 1 - Beatable (Consistent, Sain is likely to die due to using lances against axes on the current strategy.)
+- Chapter 2 - Not Beatable (Consistent, Kent's movement is bugged, causing the bot to crash. Likely due to the terrain, and breakable walls not being implemented into the bot's logic yet.)
+- Chapter 3 - Beatable (Consistent, Florina is likely to die on the current strategy, due to being fragile and not having to care about walls (meaning she will reach the pack of enemies much faster))
+
 # You will need:
 
 - mGBA (recommended to build it from here: https://github.com/mgba-emu/mgba)
 - A ROM of Fire Emblem (version US 1.0). This must be ripped yourself from an official copy of the game. This application does not include ANY of the game's files.
-- A save file that has access to the 'Hard Mode' versions of the chapters. The tutorials forced by normal mode cause issues with the bot, creating desyncs.
+- A save file that has access to the 'Hard Mode' versions of the chapters. The tutorials forced by normal mode cause issues with the bot, creating desyncs between inputs and allowed actions.
 - A python installation.
 
 # Steps to Run:

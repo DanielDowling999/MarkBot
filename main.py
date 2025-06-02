@@ -217,6 +217,8 @@ def storeUnits(unitData):
     startAddress = 0
     endAddress = 72
     for x in range(numUnits):
+        #print("Printing unit data:")
+        #print(unitData[startAddress:endAddress])
         unitList.append(Unit(unitData[startAddress:endAddress]))
         startAddress = endAddress
         endAddress += 72
@@ -274,6 +276,11 @@ def createMoveMap(mapData, unitList, enemyList):
 
     return moveMapList
 
+
+def enemyAndUnitMap(mapData, enemyList):
+    for enemy in enemyList:
+        mapData[enemy.ypos][enemy.xpos] = 0x9D
+    return mapData
 # Don't think I would actually use belowv for anything.
 
 # Doesn't work the way I want
@@ -312,7 +319,7 @@ def findUnitAttacks(unitMoveMap, simpleMapList, enemyList, unit):
     return enemyMapList
 
 
-def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList):
+"""def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList):
     if unit.ranges[0] == 0:
         return []
     mapX = len(simpleMapList[0])
@@ -362,9 +369,101 @@ def findAttackableEnemies(moveMapList, simpleMapList, unit, unitList, enemyList)
                                 [yPlus, xPlus, ranges])
         if enemyAttackableFrom:
             attackableEnemiesList.append([enemy, enemyAttackableFrom])
+    return attackableEnemiesList"""
+def findAttackableEnemies(unitMoveMap, simpleMapList, unit, unitList, enemyList):
+    if unit.ranges[0] == 0:
+        return []
+
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    attackableEnemiesList = []
+
+    # Get occupied tiles so we don't try to end a move on a friendly unit
+    occupied_positions = {(u.xpos, u.ypos) for u in unitList if u.id != unit.id}
+    print(f"Unit is at ({unit.xpos}, {unit.ypos})")
+    print(f"unitMoveMap at unit tile: {unitMoveMap[unit.ypos][unit.xpos]}")
+    for enemy in enemyList:
+        enemyAttackableFrom = []
+        ex, ey = enemy.xpos, enemy.ypos
+        print(f"Checking enemy {enemy.name} at ({ex}, {ey})")
+
+        for rng in unit.ranges:
+            # Cardinal directions
+            potential_positions = [
+                (ey, ex - rng),  # Left
+                (ey, ex + rng),  # Right
+                (ey - rng, ex),  # Up
+                (ey + rng, ex),  # Down
+            ]
+
+            # Diagonals (if 2-range or higher)
+            if rng == 2:
+                potential_positions += [
+                    (ey - 1, ex - 1),
+                    (ey - 1, ex + 1),
+                    (ey + 1, ex - 1),
+                    (ey + 1, ex + 1),
+                ]
+
+            for y, x in potential_positions:
+                if 0 <= y < mapY and 0 <= x < mapX:
+                    if unitMoveMap[y][x] >= 0 and (x, y) not in occupied_positions:
+                        print(f"-> Can attack from ({x}, {y} using range {rng})")
+                        enemyAttackableFrom.append([y, x, rng])
+
+        if enemyAttackableFrom:
+            attackableEnemiesList.append([enemy, enemyAttackableFrom])
+
     return attackableEnemiesList
 
 
+"""def findAttackableEnemies(unitMoveMap, simpleMapList, unit, unitList, enemyList):
+    print(f"Unit {unit.name} ranges: {unit.ranges}")  # ADD THIS LINE
+    if unit.ranges[0] == 0:
+        return []
+
+    mapX = len(simpleMapList[0])
+    mapY = len(simpleMapList)
+    attackableEnemiesList = []
+
+    # Get occupied tiles so we don't try to end a move on a friendly unit
+    occupied_positions = {(u.xpos, u.ypos) for u in unitList if u != unit}
+    print(f"Unit is at ({unit.xpos}, {unit.ypos})")
+    print(f"unitMoveMap at unit tile: {unitMoveMap[unit.ypos][unit.xpos]}")
+    
+    for enemy in enemyList:
+        enemyAttackableFrom = []
+        ex, ey = enemy.xpos, enemy.ypos
+        print(f"Checking enemy {enemy.name} at ({ex}, {ey})")
+        
+        # Let's specifically check the unit's current position first
+        current_distance = abs(unit.xpos - ex) + abs(unit.ypos - ey)
+        print(f"Distance from current position to enemy: {current_distance}")
+        print(f"Can reach current position: {unitMoveMap[unit.ypos][unit.xpos] >= 0}")
+        print(f"Current position occupied: {(unit.xpos, unit.ypos) in occupied_positions}")
+
+        # Check all reachable positions to see if they can attack this enemy
+        for y in range(mapY):
+            for x in range(mapX):
+                # If this position is reachable and not occupied by a friendly unit
+                if unitMoveMap[y][x] >= 0 and (x, y) not in occupied_positions:
+                    # Check if enemy is within attack range from this position
+                    distance = abs(x - ex) + abs(y - ey)
+                    
+                    for rng in unit.ranges:
+                        if distance == rng:
+                            print(f"-> Can attack from ({x}, {y}) using range {rng} (distance: {distance})")
+                            enemyAttackableFrom.append([y, x, rng])
+                            break
+
+        if enemyAttackableFrom:
+            attackableEnemiesList.append([enemy, enemyAttackableFrom])
+        else:
+            print(f"No attackable positions found for {enemy.name}")
+
+    print(f"Total attackable enemies: {len(attackableEnemiesList)}")
+    return attackableEnemiesList
+"""
 def checkIfEnemy(enemyList, i, j):
     for enemy in enemyList:
         if enemy.ypos == i and enemy.xpos == j:
@@ -404,6 +503,16 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList):
     unitMoveMap[unitY][unitX] = unitMove
     unitMoveMap = realFloodFill(
         unitX, unitY, unitMoveMap[unitY][unitX], unitMoveMap, unitMove, simpleMap, unitMoveType)
+    #print(f"Current unit: {unit.name} at ({unit.xpos}, {unit.ypos})")
+    for other in unitList:
+        #print(f"Checking unit: {other.name} at ({other.xpos}, {other.ypos})")
+        if other.id != unit.id:
+            #print(f"  -> Blocking {other.name}")
+            unitMoveMap[other.ypos][other.xpos] = -9
+        #else:
+            #print(f"  -> This is the current unit, not blocking")
+
+    #print(f"Final value at unit position: {unitMoveMap[unit.ypos][unit.xpos]}")
     return unitMoveMap
 
 
@@ -468,7 +577,7 @@ def realFloodFill(x, y, prev, unitMoveMap, unitMove, moveMapList, unitMoveType):
 
 
 def calculateAttackRating(unit, weapon, enemy, attackRange):
-    print("Entered attack rating function")
+    #print("Entered attack rating function")
     attackRating = 0
     enemyHp = enemy.currHP
     unitHp = unit.currHP
@@ -529,7 +638,6 @@ def calculateAttackRating(unit, weapon, enemy, attackRange):
     attackRating = (float(damage)/enemyHp - float(enemyDamage)/unitHp)*100
     return attackRating
 
-
 def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies, enemyList, objective):
     # the default best move is to not move at all.
     global terrainDictionary
@@ -537,6 +645,8 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
     bestMoveY = unit.ypos
     bestMoveAction = ""
     itemPos = 0
+    friendly_positions = {(u.xpos, u.ypos) for u in unitList if u.id != unit.id}
+    enemy_positions = {(e.xpos, e.ypos) for e in enemyList}
     if (unit.currHP < unit.maxHP/2):
         bestMoveAction = "heal"
 
@@ -544,21 +654,79 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
     # print(enemiesInRange)
     # bestMoveAction = "nothing"
     bestMove = [-100]
+    #print("Attackable enemies: " + str(attackableEnemies))
     if not attackableEnemies:
-        print("entered here")
+        #print("entered here")
         # fullMapRange = findFullMapMove(simpleMapList, unit, unitList)
         # nearestEnemy = findNearestEnemy(
         #    fullMapRange, simpleMapList, unit, unitList, enemyList)
         moveTowardList = movement.findAllMoves(
             simpleMapList, unit, unitList, enemyList, terrainDictionary)
+        valid_paths = []
+        trimmed_paths = []
+        for path in moveTowardList:
+            #hacky fix
+            if len(path) < 2:
+                continue
+            pre_end = path[-2]
+            end = path[-1]
+            if (end[1], end[0]) in enemy_positions:
+                ex, ey = end[1], end[0]
+                px, py = pre_end[1], pre_end[0]
+                if abs(px-ex) + abs(py-ey) ==1:
+                    path = path[:-1]
+            end_y, end_x = path[-1]
+            if (end_x, end_y) in friendly_positions:
+                continue  # Can't stop on another unit
+            blocked = False
+            if (end_x, end_y) in enemy_positions:
+                print(f"Path ends on enemy at {(end_x, end_y)}")
+                continue
+            for y,x in path[1:-1]:
+                if (x, y) in enemy_positions:
+                    blocked=True
+                    break
+            if blocked:
+                print(f"Blocked path due to enemy at: {(x, y)} - {path}")
+            elif (end_x, end_y) in friendly_positions:
+                print(f"Path ends on friendly unit at {(end_x, end_y)}")
+            if not blocked:
+                valid_paths.append(path)
+
+            """
+            for i in range(1, len(path)):
+                y, x = path[i]
+                if (x, y) in {(e.xpos, e.ypos) for e in enemyList}:
+                    blocked = True
+                    break  # Can't walk through enemies
+            if not blocked:
+                valid_paths.append(path)"""
+        #added below all the way to if unit.name == 'lyn'
+        moveTowardList = valid_paths
         print(moveTowardList)
         if not moveTowardList:
-            if unit.name == 'lyn':
+            """bestPath = []
+            shortestLen = float('inf')
+            for enemy in enemyList:
+                path = movement.findObjective(
+                    simpleMapList, unit, unitList, terrainDictionary, [enemy.ypos, enemy.xpos])
+                if path and len(path) < shortestLen:
+                    bestPath = path
+                    shortestLen = len(path)
+
+            if bestPath:
+                bestMoveAction = "move"
+                if len(bestPath) <= unit.trueMove:
+                    bestMoveY, bestMoveX = bestPath[-1]
+                else:
+                    bestMoveY, bestMoveX = bestPath[unit.trueMove]
+                return [0, [bestMoveY, bestMoveX], 0, 0, bestMoveAction]"""
+            if unit.name == 'lyn' and objective[0] == 'seize': #and :
                 seizeLocation = objective[1:3]
                 moveTowardList = movement.findObjective(
                     simpleMapList, unit, unitList, terrainDictionary, seizeLocation)
                 bestMoveAction = "move"
-                index = -1
+                #index = -1
                 if len(moveTowardList) < unit.trueMove:
                     bestMoveY = moveTowardList[-1][0]
                     bestMoveX = moveTowardList[-1][1]
@@ -575,10 +743,36 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
         # First idea: Randomly select an enemy to move towards. Will also need to include a 0,0 point. Or Objective.
         # Or just wait in place?
         # will need to work the maxVal stuff into the seize stuff
+        #should be moved to own function
         maxVal = len(moveTowardList)
+        totalCost = 0
+        moveIndex = 0
         index = random.randint(0, maxVal-1)
+        path = moveTowardList[index]
+        for i in range(1, len(path)):
+            y, x = path[i]
+            tile = simpleMapList[y][x]
+            moveCost = terrainDictionary[tile][4+unit.classMoveId]
+            if moveCost == "-" or moveCost.strip() == "":
+                break
+            moveCost = float(moveCost)
+            if totalCost + moveCost > unit.trueMove:
+                break
+            totalCost +=moveCost
+            if (x,y) not in friendly_positions:
+                moveIndex=i
+            """else:
+                totalCost += moveCost
+                moveIndex = i"""
+        
+        bestMoveY = path[moveIndex][0]
+        bestMoveX = path[moveIndex][1]
+        """
+        moveIndex = 0
+        totalCost = 0
         bestMoveY = moveTowardList[index][unit.trueMove][0]
         bestMoveX = moveTowardList[index][unit.trueMove][1]
+        """
         bestMoveAction = "move"
         print(bestMoveY, bestMoveX)
         return [0, [bestMoveY, bestMoveX], 0, 0, bestMoveAction]
@@ -604,7 +798,7 @@ def findBestMove(simpleMapList, unitMoveList, unit, unitList, attackableEnemies,
                         if attackRating > bestMove[0]:
                             bestMove = [attackRating,
                                         attacks, item, itemPos, "attack"]
-                            print(bestMove)
+                            #print(bestMove)
             itemPos += 1
     if bestMove[0] <= -100:
         healingItem = Unit.getHealingItems(unit)
@@ -660,47 +854,19 @@ def passableTerrain(tile, unitMoveType):
         return False
     return True
 
-# GET ADVICE ON FIXING CONTROLS. THIS IS CRUCIAL
 def doMove(unit, bestMove, client):
     unitX = unit.xpos
     unitY = unit.ypos
     print(bestMove)
     bestMoveX = bestMove[1][1]
     bestMoveY = bestMove[1][0]
+    
     itemPos = bestMove[3]
     bestMoveAction = bestMove[4]
     currItemPos = 0
     print(bestMoveX)
     print(bestMoveY)
-    # controller.press_a()
-    """    
-    while not (unitX == bestMoveX):
-        if unitX > bestMoveX:
-            sockettest.send("pressLeft")
-            time.sleep(0.2)
-            #controller.press_left()
-            unitX = unitX - 1
-            print("moving")
-        elif unitX < bestMoveX:
-            sockettest.send("pressRight")
-            time.sleep(0.2)
-            #controller.press_right()
-            unitX = unitX + 1
-            print("moving")
-    while not (unitY == bestMoveY):
-        if (unitY > bestMoveY):
-            sockettest.send("pressUp")
-            time.sleep(0.2)
-            #controller.press_up()
-            unitY = unitY - 1
-            print("moving")
-        elif unitY < bestMoveY:
-            sockettest.send("pressDown")
-            time.sleep(0.2)
-            #controller.press_down()
-            unitY = unitY + 1
-            print("moving")
-    """
+
     newController.press_a(client)
     while not (unitX == bestMoveX):
         if unitX > bestMoveX:
@@ -720,53 +886,42 @@ def doMove(unit, bestMove, client):
         time.sleep(0.2)
     print("Acting")
     newController.press_a(client)
-    #controller.press_a()
+
     time.sleep(3)
     if bestMoveAction == "attack":
         print("attacking")
         newController.press_a(client)
-
-        #controller.press_a()
         while not (itemPos == currItemPos):
             newController.press_down(client)
-            #controller.press_down()
             currItemPos += 1
-        #controller.attack()
         for i in range(3):
             newController.press_a(client)
             time.sleep(0.2)
         time.sleep(5)
     elif bestMoveAction == "seize":
         print("seizing")
-        #controller.press_a()
         newController.press_a(client)
 
     elif bestMoveAction == "heal":
         print("healing")
-        #controller.press_a()
         newController.press_a(client)
         time.sleep(0.2)
         while not (itemPos == currItemPos):
-            #controller.press_down()
             newController.press_down(client)
             time.sleep(0.2)
             currItemPos += 1
-        #controller.press_a()
+        newController.press_a(client)
         newController.press_a(client)
         time.sleep(0.2)
 
     else:
         print("Ending turn")
         newController.end_move(client)
-        
-
-
     return
 
 
 def main():
     client = MgbaClient()
-    print("Running branched version")
     global commandList
     global terrainDictionary
     fillItemLists()
@@ -792,15 +947,17 @@ def main():
     time.sleep(0.1)
     print(chapterObjective)
     while (True):
+        print("Turn Start")
         #neccessary to skip any dialogue at the start of a chapter
-        newController.press_start(client)
-        newController.press_start(client)
-        time.sleep(0.1)
+        #newController.press_start(client)
+        #newController.press_start(client)
+        #time.sleep(0.1)
         unitData = client.send_command(commandList[0])
         time.sleep(0.1)
-        #unitData = sockettest.send(commandList[0])
-        print(unitData)
+        #print(unitData)
         unitList = getUnitData(unitData)
+        unitList = [u for u in unitList if u.isAlive()]
+
 
     # for units in unitList:
     #    print(units.name)
@@ -814,6 +971,8 @@ def main():
         time.sleep(0.1)
         #enemyData = sockettest.send(commandList[1])
         enemyList = getEnemyData(enemyData)
+        enemyList = [e for e in enemyList if e.isAlive()]
+
     # money = int(sockettest.main(commandList[2]))
         mapData = client.send_command(commandList[4])
         time.sleep(0.1)
@@ -823,48 +982,58 @@ def main():
     # print("Base map data is:")
     # print(mapList)
         simpleMapList = createMoveMap(mapData, unitList, enemyList)
+        simpleMapList = enemyAndUnitMap(simpleMapList, enemyList)
 
     # print(simpleMapList)
     # print(passableTerrain('19', unitList[3].classMoveId))
     # print(unitList[0].classMoveId)
         unitMoveList = []
         allMoveList = []
+        print("Terrain Map:")
         print(simpleMapList)
         #controller.press_a()
         
         for currUnit in unitList:
-            
-            
-            print(currUnit.name)
+            print(f"Unit: {currUnit.name}, HP: {currUnit.currHP}, Status: {currUnit.status}, isAlive: {currUnit.isAlive()}")
+                        
+            #unitData = sockettest.send(commandList[0])
+            unitData = client.send_command(commandList[0])
+            unitList = getUnitData(unitData)
+            unitList = [u for u in unitList if u.isAlive()]
+            #enemyData = sockettest.send(commandList[1])
+            enemyData = client.send_command(commandList[1])
+            enemyList = getEnemyData(enemyData)
+            enemyList = [e for e in enemyList if e.isAlive()]
+            #mapData = sockettest.send(commandList[4])
+            mapData = client.send_command(commandList[4])
+            mapList = list(mapData)
+            simpleMapList = createMoveMap(mapData, unitList, enemyList)
             oldMoveMap = findAllMoves(
                 simpleMapList, currUnit, unitList, enemyList)
-            print("Old Map:")
+            
+            #print(simpleMapList)
+            print("Terrain Map")
+            print(simpleMapList)
+            print("Move Map:")
             print(oldMoveMap)
             attackableEnemies = findAttackableEnemies(
                 oldMoveMap, simpleMapList, currUnit, unitList, enemyList)
             bestMove = findBestMove(simpleMapList, unitMoveList,
                                     currUnit, unitList, attackableEnemies, enemyList, chapterObjective)
             # if not bestMove[0] == -100:
+
+
             doMove(currUnit, bestMove, client)
             # else:
             #    controller.press_a()
             #    controller.end_move()
             #controller.next_unit()
-            
-            #unitData = sockettest.send(commandList[0])
-            unitData = client.send_command(commandList[0])
-            unitList = getUnitData(unitData)
-            #enemyData = sockettest.send(commandList[1])
-            enemyData = client.send_command(commandList[1])
-            enemyList = getEnemyData(enemyData)
-            #mapData = sockettest.send(commandList[4])
-            mapData = client.send_command(commandList[4])
-            mapList = list(mapData)
-            simpleMapList = createMoveMap(mapData, unitList, enemyList)
+
             #newController.next_unit(client)
             newController.press_l(client)
-        newController.end_turn(client)
+        #newController.end_turn(client)
         #Need to find a flag to wait for so we know when it's our turn again.
+        print("Turn End")
         time.sleep(20)
 
     # newMoveMap = findFullMapMove(simpleMapList, currUnit, unitList)

@@ -1,4 +1,11 @@
-Enemy unit data isn't being read after first enemy is killed on 2nd map. Likely because the enemy is
-the 'first', and so when he's killed he's deleted from memory. Because of the way we check for 
-enemies, his deleted data would mean that the rest of the enemies will no longer be seen.
-How to fix: Change how we get the unit data? Can't just do it once and update due to reinforcements
+To do:
+
+- Fix the path-finding so that units go after enemies out of range as well. (I'm assuming that my current path-finding attempt is only working
+on the first chapter because Lyn finds a path to the throne, which puts her in range of an enemy).
+
+
+
+Nice to Have:
+- Finding in memory where a flag is sent for mid-chapter talk events. For now, they will need to be manually skipped.
+
+- 

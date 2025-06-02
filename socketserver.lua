@@ -128,7 +128,6 @@ function GetPlayerPhase()
 end
 
 function GetChapterID()
-	console:log("Running branched version.")
 	return emu:read8(0x0202BC06)
 end
 function GetMapData()

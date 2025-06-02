@@ -50,6 +50,7 @@ class Unit:
         self.exp = unitData[9]
         self.deployPos = unitData[11]
         self.status = unitData[12:16]
+        self.alive = unitData[12]
         self.xpos = unitData[16]
         self.ypos = unitData[17]
         self.maxHP = int(unitData[18])
@@ -117,7 +118,10 @@ class Unit:
     #    return Unit.classList.get(self.classId)[3]
 
     # Find units (might also add a min range for cases like the unit having a long bow/ruin tome)
-
+    def isAlive(self):
+        #print("Unit living status: " + str(self.alive))
+        return not (self.alive == 0xD or self.alive == 0x4 or self.alive == 0x5)
+        #return self.currHP > 0
 # Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
 # or not they can use it, then just pull the longest range one when calcing range.
 

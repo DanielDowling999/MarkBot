@@ -1,4 +1,5 @@
 import numpy
+import heapq
 from numpy import inf
 
 
@@ -30,6 +31,19 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList, terrainDictionary):
     unitMoveType = unit.classMoveId
     mapX = len(simpleMapList[0])
     mapY = len(simpleMapList)
+
+     # DEBUG: Print dimensions
+    #print(f"Map dimensions: {mapX} x {mapY}")
+    #print(f"Unit position: ({unitX}, {unitY})")
+    
+    # Validate dimensions
+    if mapX <= 0 or mapY <= 0:
+        print(f"ERROR: Invalid map dimensions: {mapX} x {mapY}")
+        return []
+    
+    if unitX >= mapX or unitY >= mapY or unitX < 0 or unitY < 0:
+        print(f"ERROR: Unit position out of bounds: ({unitX}, {unitY}) for map {mapX} x {mapY}")
+        return []
     unitMoveMap = numpy.ones((mapY, mapX))*inf
     visited = numpy.zeros((mapY, mapX))
     enemyPaths = []
@@ -50,8 +64,10 @@ def findAllMoves(simpleMapList, unit, unitList, enemyList, terrainDictionary):
     for enemy in enemyList:
         enemyPaths.append(findShortestPathToAllEnemiesAndTiles(
             unitX, unitY, unitMoveMap, enemy.xpos, enemy.ypos, simpleMapList, unitMoveType, visited, terrainDictionary))
-        iterator += 1
         print("Path found to " + str(iterator))
+        print(enemyPaths[iterator])
+        iterator += 1
+
         unitMoveMap = numpy.ones((mapY, mapX))*inf
         unitMoveMap[unitY][unitX] = 0
 
@@ -75,8 +91,124 @@ def right(y, x):
 def down(y, x):
     return (y+1, x)
 
+def pqfindShortestPathToAllEnemiesAndTiles(startX, startY, unitMoveMap, goalX, goalY, simpleMap, unitMoveType, terrainDictionary):
+    height, width = unitMoveMap.shape
+    visited = numpy.zeros_like(unitMoveMap, dtype=bool)
+    prev = numpy.full((height, width, 2), -1, dtype=int)
+
+    directions = [up, down, left, right]
+
+    pq=[]
+
+    heapq.heappush(pq, (0, startY, startX))
+    unitMoveMap[startY][startX] = 0
+
+    print(f"Starting pathfind from ({startX}, {startY}) to ({goalX}, {goalY})")
+    while pq:
+        cost, y, x = heapq.heappop(pq)
+        if visited[y][x]:
+            continue
+        if (x, y) == (goalX, goalY):
+            print("Goal Reached!")
+            break
+        for direction in directions:
+            ny, nx = direction(y,x)
+            #assert 0 <= ny < height and 0 <= nx < width, f"Out of bounds: ({ny}, {nx})"
+            if not (0 <= ny < height and 0 <= nx < width):
+                continue  # SAFETY FIRST
+            if not validTile(terrainDictionary, simpleMap, unitMoveType, nx, ny):
+                continue
+            if visited[ny][nx]:
+                continue
+            tileData = terrainDictionary.get(simpleMap[ny][nx])
+            try:
+                movePenalty = float(tileData[4+unitMoveType])
+            except (ValueError, TypeError):
+                continue
+        newCost = cost + movePenalty
+
+        if newCost < unitMoveMap[ny][nx]:
+            unitMoveMap[ny][nx] = newCost
+            prev[ny][nx] = [y,x]
+            heapq.heappush(pq, (newCost, ny, nx))
+    return backtrack(startX, startY, goalX, goalY, prev)
+
+def pqbacktrack(startX, startY, goalX, goalY, prev):
+    path = []
+    x, y = goalX, goalY
+    while (x, y) != (startX, startY):
+        path.append((x, y))
+        y, x = prev[y][x]
+        if (x, y) == (-1, -1):
+            return []  # No path
+    path.append((startX, startY))
+    path.reverse()
+    return path
+        
 
 def findShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simpleMap, unitMoveType, visited, terrainDictionary):
+    initX = x
+    initY = y
+    
+    # DEBUG: Check initial array state
+    print(f"Starting pathfind from ({x}, {y}) to ({goalX}, {goalY})")
+    print(f"Initial unitMoveMap shape: {unitMoveMap.shape}")
+    print(f"Initial visited shape: {visited.shape}")
+    
+    directions = [up, down, left, right]
+    iterator = 0
+    
+    while True:
+        visited[y][x] = 1
+        # DEBUG: Check array before processing
+        if len(unitMoveMap) == 0 or len(unitMoveMap[0]) == 0:
+            print("ERROR: unitMoveMap became empty during pathfinding!")
+            break
+            
+        for direction in directions:
+            nextY, nextX = direction(y, x)
+            if validTile(terrainDictionary, simpleMap, unitMoveType, nextX, nextY):
+                if visited[nextY][nextX] == 0:
+                    tileData = terrainDictionary.get(simpleMap[nextY][nextX])
+                    movePenalty = tileData[4+unitMoveType]
+                    if movePenalty == "-" or movePenalty.strip() == "":
+                        continue
+                    temp = float(movePenalty) + float(unitMoveMap[y][x])
+                    if temp < unitMoveMap[nextY][nextX]:
+                        unitMoveMap[nextY][nextX] = temp
+        
+        iterator += 1
+        #print(f"Loop {iterator}")
+        
+
+        # DEBUG: Check array before copying
+        #print(f"unitMoveMap shape before copy: {unitMoveMap.shape}")
+        t = unitMoveMap.copy()
+        #print(f"t shape after copy: {t.shape}")
+        
+        t[numpy.where(visited)] = inf
+        #print(f"t shape after setting visited to inf: {t.shape}")
+        
+        # DEBUG: Check if t is valid before calling findMinYX
+        if len(t) == 0 or len(t[0]) == 0:
+            print("ERROR: t became empty before findMinYX!")
+            break
+            
+        y, x = findMinYX(t)
+        #print(f"Next node: ({x}, {y})")
+        
+        if x == goalX and y == goalY:
+            print("Goal reached!")
+            break
+            
+        # Add iteration limit to prevent infinite loops
+        if iterator > 1000:  # Adjust this based on your map size
+            print("ERROR: Too many iterations, breaking to prevent infinite loop")
+            break
+
+    return backtrack(initX, initY, goalX, goalY, unitMoveMap)
+
+def OldfindShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simpleMap, unitMoveType, visited, terrainDictionary):
     initX = x
     initY = y
     # print(initX, initY, goalX, goalY)
@@ -93,11 +225,15 @@ def findShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simple
                 if visited[nextY][nextX] == 0:
                     tileData = terrainDictionary.get(simpleMap[nextY][nextX])
                     movePenalty = tileData[4+unitMoveType]
+                    if movePenalty == "-" or movePenalty.strip() == "":
+                        continue
+
                     temp = float(movePenalty) + float(unitMoveMap[y][x])
                     # terrainDictionary.get(simpleMap[nextY][nextX])[
                     #    4+unitMoveType]
                     if temp < unitMoveMap[nextY][nextX]:
-                        unitMoveMap[nextY][nextX] = int(temp)
+                        #unitMoveMap[nextY][nextX] = int(temp)
+                        unitMoveMap[nextY][nextX] = temp
                         # print(unitMoveMap[nextY][nextX])
         iterator += 1
         # print("Loop" + str(iterator))
@@ -113,6 +249,9 @@ def findShortestPathToAllEnemiesAndTiles(x, y, unitMoveMap, goalX, goalY, simple
         t[numpy.where(visited)] = inf
         node_index = numpy.argmin(t)
         y, x = findMinYX(t)
+        """if unitMoveMap[y][x] == inf:
+            print(f"Goal ({goalX}, {goalY}) is unreachable!")
+            break  # or handle unreachable case appropriately"""
         # print(y, x)
         # print(unitMoveMap)
         # print(t)
@@ -183,6 +322,7 @@ def validTile(terrainDictionary, simpleMap, unitMoveType, x, y):
 
 
 def validSquare(simpleMap, x, y):
+    #print(f"{x}, {y}, {len(simpleMap[0])}, {len(simpleMap)}")
     if (x < 0 or x >= len(simpleMap[0]) or y < 0 or y >= len(simpleMap)):
         return False
     return True

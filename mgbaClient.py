@@ -55,7 +55,7 @@ class MgbaClient:
                 msg_len = struct.unpack(">I", raw_len)[0]
                 print(f"[Python] Expecting {msg_len} bytes from server")
                 data = recv_all(self.sock, msg_len)
-                print(data)
+                #print(data)
                 return data
             return
         except Exception as e:
