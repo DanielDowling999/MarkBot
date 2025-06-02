@@ -6,7 +6,7 @@ The bot is capable of completing the first few levels of the game. More work nee
 
 Note: Mid-Chapter cutscenes must be manually skipped at this stage. This is due to their location in memory not being readily apparent, and the game's memory being not that well documented. More research is needed into cutscene flags, including for level-ups.
 
-# Chapter Status - 
+# Chapter Status:
 - Prologue - Beatable (Luck based, there is a chance with the current strategy that Lyn will get hit twice and die)
 - Chapter 1 - Beatable (Consistent, Sain is likely to die due to using lances against axes on the current strategy.)
 - Chapter 2 - Not Beatable (Consistent, Kent's movement is bugged, causing the bot to crash. Likely due to the terrain, and breakable walls not being implemented into the bot's logic yet.)
