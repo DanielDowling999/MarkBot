@@ -1,82 +1,69 @@
-import sockettest
 import time
 
-# Set of useful button press functions, for use if I choose to use pyautogui to let the bot control the game.
-
-
-def press_button(button, n_times=1, delay=0.2):
-    for num in range(n_times):
-        pyautogui.keyDown(button)
-        pyautogui.keyUp(button)
+#Uses the MGBA API to send inputs directly to the console.
+def press_button(client, button, n_times=1, delay=1):
+    for i in range(n_times):
+        #sockettest.send(button)
+        client.send_command(button)
         time.sleep(delay)
 
+def press_up(client, n_times=1):
+    press_button(client, "pressUp", n_times)
 
-def press_up(n_times=1):
-    press_button("up", n_times)
+def press_down(client, n_times=1):
+    press_button(client, "pressDown", n_times)
 
+def press_left(client, n_times=1):
+    press_button(client, "pressLeft", n_times)
 
-def press_down(n_times=1):
-    press_button("down", n_times)
+def press_right(client, n_times=1):
+    press_button(client, "pressRight", n_times)
 
+def press_a(client, n_times=1):
+    press_button(client, "pressA", n_times)
 
-def press_left(n_times=1):
-    press_button("left", n_times)
+def press_b(client, n_times=1):
+    press_button(client, "pressB", n_times)
 
+def press_l(client, n_times=1):
+    press_button(client, "pressL", n_times)
 
-def press_right(n_times=1):
-    press_button("right", n_times)
+def press_r(client, n_times=1):
+    press_button(client, "pressR", n_times)
 
+def press_sel(client, n_times=1):
+    press_button(client, "pressSelect", n_times)
 
-def press_a(n_times=1):
-    press_button("x", n_times)
-
-
-def press_b(n_times=1):
-    press_button("z", n_times)
-
-
-def press_l(n_times=1):
-    press_button("a", n_times)
-
-
-def press_r(n_times=1):
-    press_button("s")
-
-
-def press_sel(n_times=1):
-    press_button("backspace")
-
-
-def press_start(n_times=1):
-    press_button("return")
+def press_start(client, n_times=1):
+    press_button(client, "pressStart", n_times)
 
 # Helper function that allows the bot to easily select the next character.
 # Press L will highlight the next unit, and press a will select them
 
 
-def next_unit():
-    press_l()
-    press_a()
+def next_unit(client):
+    press_l(client)
+    press_a(client)
 
 # Each attack requires 3 a presses. One to confirm an attack. One to select a weapon.
 # one to select an enemy. This function will not stay in this form.
 
 
-def attack():
-    press_a(3)
+def attack(client):
+    press_a(client, 3)
     time.sleep(10)
 
 # end move function. pressing up at the start of menuing will always bring you to the bottom of
 # the menu provided no inputs get eaten
 
 
-def end_move():
-    press_up()
-    press_a()
+def end_move(client):
+    press_up(client)
+    press_a(client)
 
 
-def end_turn():
-    press_up()
-    press_a()
-    press_up()
-    press_a()
+def end_turn(client):
+    press_up(client)
+    press_a(client)
+    press_up(client)
+    press_a(client)

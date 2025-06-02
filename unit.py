@@ -35,17 +35,14 @@ class Unit:
     # order is Sword, Lance, Axe, Bow, Staff, Anima, Light, Dark}
 
     def __init__(self, unitData):
-
+        # f formats the string {0} ensures no leading 0's are deleted
         self.id = str(
-            hex(unitData[0])) + f'{unitData[1]:{0}2x}' + f'{unitData[2]:{0}2x}' + f'{unitData[3]:{0}2x}'  # f formats the string {0} ensures no leading 0's are deleted
-        #print(self.id)
+            hex(unitData[0])) + f'{unitData[1]:{0}2x}' + f'{unitData[2]:{0}2x}' + f'{unitData[3]:{0}2x}'
         self.nameId = f'{unitData[1]:{0}2x}' + f'{unitData[0]:{0}2x}'
 
-        # f formats the string {0} ensures no leading 0's are deleted
-        # self.classId = str(hex(
-        #    unitData[4])) + f'{unitData[5]:{0}2x}' + f'{unitData[6]:{0}2x}' + f'{unitData[7]:{0}2x}'
+
+
         self.classId = f'{unitData[5]:{0}2x}' + f'{unitData[4]:{0}2x}'
-        #print(self.classId)
         self.level = unitData[8]
         self.exp = unitData[9]
         self.deployPos = unitData[11]
@@ -67,8 +64,7 @@ class Unit:
         self.movBonus = unitData[29]
         invData = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
             unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
-        # self.inventory = [[unitData[30], unitData[31]], [unitData[32], unitData[33]], [
-        #    unitData[34], unitData[35]], [unitData[36], unitData[37]], [unitData[38], unitData[39]]]
+        
         self.hasMoved = False
 
         # 00 - weapon disabled
@@ -94,6 +90,14 @@ class Unit:
         self.fullInv = Unit.fillInventory(self, invData)
         self.maxRange, self.minRange = Unit.findMinMaxRanges(self)
         self.ranges = Unit.findRanges(self)
+
+
+            #When a unit dies, a flag is set that changes their status. However, this seems to be frustratingly inconsistent. I have seen 3 values so far denoting a dead unit.
+    def isAlive(self):
+        return not (self.alive == 0xD or self.alive == 0x4 or self.alive == 0x5)
+    
+
+
         # self.maxRange = self.findMaxRange(self.inventory, self.weaponRanks)
         # self.className = self.getClassName()
         # self.classMove = self.getClassMov()
@@ -117,15 +121,12 @@ class Unit:
     # def getClassMoveType(self):
     #    return Unit.classList.get(self.classId)[3]
 
-    # Find units (might also add a min range for cases like the unit having a long bow/ruin tome)
-    def isAlive(self):
-        #print("Unit living status: " + str(self.alive))
-        return not (self.alive == 0xD or self.alive == 0x4 or self.alive == 0x5)
-        #return self.currHP > 0
+
+
 # Better way to do this could be to convert the inventory to contain all the weapon and items actual stats, along with a flag of whether
 # or not they can use it, then just pull the longest range one when calcing range.
 
-
+#Note, a minor bug seems to exist with item position. Some items will be marked at different positions than they actually are. However, so far these values are being interpreted correctly (i.e, it will still press enough buttons to stop on the right item)
     def fillInventory(self, invData):
         fullInv = []
         itemPos = 0

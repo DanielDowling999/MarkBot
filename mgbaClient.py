@@ -32,19 +32,6 @@ class MgbaClient:
         self.sock.connect((self.host, self.port))
         print('Connected to mgba server')
 
-    """def send_command(self, command):
-        try:
-            self.sock.sendall((command + "\n").encode())
-            data = self.sock.recv(1024)  # adjust buffer size as needed
-            #print(f'Received: {data}')
-            #print(data)
-            print(command + ". Raw recv:", repr(data))
-            return data
-        except Exception as e:
-            print(f'Error during send: {e}')
-            return None"""
-
-    
     def send_command(self, command):
         
         try:
@@ -55,7 +42,6 @@ class MgbaClient:
                 msg_len = struct.unpack(">I", raw_len)[0]
                 print(f"[Python] Expecting {msg_len} bytes from server")
                 data = recv_all(self.sock, msg_len)
-                #print(data)
                 return data
             return
         except Exception as e:

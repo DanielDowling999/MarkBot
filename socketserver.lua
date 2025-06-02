@@ -47,6 +47,7 @@ function GetCurrUnitData()
     local unitData = emu:readRange(address,72)
     return unitData
 end
+
 --Suite of functions to retrieve player and enemy unit data. Will eventually need one for green 'ally' units as well
 function GetMyUnitData()
 	local address = 0x202BD50
@@ -69,11 +70,7 @@ function GetUnitData(address, count)
 		end
 	end
 
-	--[[while(emu:read16(address)>0x0000) do
-		data = data .. emu:readRange(address,72)
-		address = address+72
-		iterator = iterator +1
-	end]]
+
 	if data == '' then
 		data = 'empty'
 	end
@@ -81,31 +78,6 @@ function GetUnitData(address, count)
 	return data
 
 end
-
---[[function GetUnitDataFromPointerTable(ptrTableAddr)
-	local unitData = ""
-	local numUnits = 0
-
-	for i = 0, 31 do
-		local ptr = emu:read32(ptrTableAddr + i * 4)
-		if ptr ~= 0 and ptr >= 0x02000000 and ptr < 0x03000000 then
-			console:log(string.format("Reading unit from ptr: 0x%08X", ptr))
-
-			unitData = unitData .. emu:readRange(ptr, 72)
-			numUnits = numUnits + 1
-		else
-			console:log(string.format("Skipping invalid unit ptr: 0x%08X", ptr))
-
-		end
-	
-	end
-
-	console:log("Found " .. tostring(numUnits) .. " valid units.")
-	return unitData
-end
-function GetMyUnitData()
-	return GetUnitDataFromPointerTable(0x202BD50)
-end--]]
 
 function GetEnemyData()
 	local enemyAddress = 0x0202CEC0
@@ -144,8 +116,6 @@ end
 
 function GetMapSize()
 	local mapsize = emu:readRange(0x0202E3D8,4)
-	--local mapy = emu:read16(0x202E3)
-	--console:log(mapsize)
 	return mapsize
 end
 
@@ -160,7 +130,7 @@ end
 
 local turnOn = {}
 local turnOff = {}
-
+--Buttons are pressed for a single frame, then released on the next.
 function onKeysRead()
   for _, k in ipairs(turnOff) do
     emu:clearKey(INPUT_KEYS[k])
@@ -181,6 +151,7 @@ end
 
 callbacks:add('keysRead', onKeysRead)
 local buffer = ""
+
 function ST_received(id)
 	local sock = ST_sockets[id]
 	if not sock then return end
@@ -203,23 +174,8 @@ function ST_received(id)
     	end
 	end
 end
---[[
-		if p then
-			for msg in p:gmatch("[^\r\n]+") do
-				msg = msg:match("^(.-)%s*$")
-				console:log("Queued command: " .. msg)
-				table.insert(command_queue, {id = id, cmd = msg})
-			end
-		else
-			if err ~= socket.ERRORS.AGAIN then
-				console:error("Socket error: " .. tostring(err))
-				ST_stop(id)
-			end
-			break
-		end
-	end
-end]]
 
+--The main command processing function. MGBA's Lua scripting does not have switch statements
 function ST_process_commands()
 	--# gets length of sequence
 	while #command_queue > 0 do
@@ -288,7 +244,7 @@ function ST_process_commands()
 			
 			else
 				if type(data) ~= "string" then
-					console:error("Data is not a string! Type: " .. type(data))
+					--console:error("Data is not a string! Type: " .. type(data))
 					data = string.char(data)
 				end
 				local len = #data
@@ -307,138 +263,6 @@ function ST_process_commands()
 end
 
 callbacks:add("frame", ST_process_commands)
-
-
-	
---[[
-function ST_received(id)
-	local sock = ST_sockets[id]
-	local data = "Empty Response"
-	local msg
-	if not sock then return end
-	while true do
-		local p, err = sock:receive(1024)
-		--console:log(p)
-		if p then
-			msg = p:match("^(.-)%s*$")
-			if msg == "pressLeft" then 
-				DoInput("LEFT")
-			elseif msg=="pressRight" then
-				DoInput("RIGHT")
-			elseif msg=="pressUp" then
-				DoInput("UP")
-			elseif msg == "pressDown" then
-				DoInput("DOWN")
-			elseif msg == "pressA" then
-				DoInput("A")
-			elseif msg == "pressB" then
-				DoInput("B")
-			elseif msg == "pressL" then 
-				DoInput("L")
-			elseif msg == "pressR" then
-				DoInput("R")
-			elseif msg == "pressStart" then 
-				DoInput("START")
-			elseif msg== "pressSelect" then
-				DoInput("SELECT")
-			elseif msg == "getIsPlayerPhase" then
-				data = GetPlayerPhase()
-				console:log("Successfully retrieved player phase")
-			elseif msg == "getUnits" then
-				data = GetMyUnitData()
-				console:log("Successfully Collected Units")
-			elseif msg == "getEnemies" then
-				data = GetEnemyData()
-				console:log("Successfully Collected Enemies")
-			elseif msg == "getMoney" then
-				data = GetMoney()
-				console:log("Successfully retrieved Money")
-			elseif msg == "getMapSize" then
-				data = GetMapSize()
-				console:log("Successfully retrieved Map Size")
-			elseif msg == "getMap" then
-				data = GetMapData()
-				console:log("Sucessfully retrieved Map Data")
-			elseif msg == "getChapterID" then
-				data = GetChapterID()
-				console:log("Successfully retrieved Chapter ID")
-			end
-			
-			console:log(ST_format(id, p:match("^(.-)%s*$")))
-			sock:send(data)
-		else
-			if err ~= socket.ERRORS.AGAIN then
-				console:error(ST_format(id, err, true))
-				ST_stop(id)
-			end
-			return
-		end
-	end
-end]]--
---[[
-function ST_received(id)
-	local sock = ST_sockets[id]
-	if not sock then return end
-
-	local p, err = sock:receive(1024)
-	if p then
-		local msg = p:match("^(.-)%s*$")
-		local data = "Empty Response"
-		if msg == "pressLeft" then 
-				DoInput("LEFT")
-			elseif msg=="pressRight" then
-				DoInput("RIGHT")
-			elseif msg=="pressUp" then
-				DoInput("UP")
-			elseif msg == "pressDown" then
-				DoInput("DOWN")
-			elseif msg == "pressA" then
-				DoInput("A")
-			elseif msg == "pressB" then
-				DoInput("B")
-			elseif msg == "pressL" then 
-				DoInput("L")
-			elseif msg == "pressR" then
-				DoInput("R")
-			elseif msg == "pressStart" then 
-				DoInput("START")
-			elseif msg== "pressSelect" then
-				DoInput("SELECT")
-			elseif msg == "getIsPlayerPhase" then
-				data = GetPlayerPhase()
-				console:log("Successfully retrieved player phase")
-			elseif msg == "getUnits" then
-				data = GetMyUnitData()
-				console:log("Successfully Collected Units")
-			elseif msg == "getEnemies" then
-				data = GetEnemyData()
-				console:log("Successfully Collected Enemies")
-			elseif msg == "getMoney" then
-				data = GetMoney()
-				console:log("Successfully retrieved Money")
-			elseif msg == "getMapSize" then
-				data = GetMapSize()
-				console:log("Successfully retrieved Map Size")
-			elseif msg == "getMap" then
-				data = GetMapData()
-				console:log("Sucessfully retrieved Map Data")
-			elseif msg == "getChapterID" then
-				data = GetChapterID()
-				console:log("Successfully retrieved Chapter ID")
-			end
-			
-			console:log(ST_format(id, p:match("^(.-)%s*$")))
-			sock:send(data)
-		else
-			if err ~= socket.ERRORS.AGAIN then
-				console:error(ST_format(id, err, true))
-				ST_stop(id)
-			end
-		end
-	end
-]]
-
-
 
 function ST_scankeys()
 	local keys = emu:getKeys()
@@ -459,6 +283,7 @@ function ST_scankeys()
 	end
 end
 
+--Accepts connections with sockets
 function ST_accept()
 	local sock, err = server:accept()
 	if err then
@@ -475,7 +300,6 @@ end
 
 
 
---callbacks:add("keysRead", ST_scankeys)
 
 local port = 8888
 server = nil
@@ -483,7 +307,6 @@ while not server do
 	server, err = socket.bind(nil, port)
 	if err then
 		if err == socket.ERRORS.ADDRESS_IN_USE then
-			--port = port + 1
 			console:error("Failed to bind to port " .. port .. ": " .. tostring(err))
 		else
 			console:error(ST_format("Bind", err, true))
